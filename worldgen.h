@@ -1,10 +1,7 @@
-#ifndef WORLD_GEN
-#define WORLD_GEN
+#ifndef WORLDGEN_APP
+#define WORLDGEN_APP
 
-#include "world.h"
-#include "land_generator.h"
-#include "civ_generator.h"
-
-void generateWorld(World* world);
+#include "visual/normal_mode.h"
+#include "visual/ncurses_mode.h"
 
 #endif

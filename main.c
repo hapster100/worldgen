@@ -1,10 +1,14 @@
-#include <stdlib.h>
 #include "worldgen.h"
+#include <string.h>
 
-int main(int numarg, char** args) {
-  if(numarg == 3) {
-    World world = world_init(atoi(args[1]), atoi(args[2]));
-    generateWorld(&world);
-    printWorld(&world, 1);
+int main(int argv, char** argc) {
+  const char* NCURSES_FLAG = "-nc";
+  if(argv == 2) {
+    if(!strcmp(argc[1], NCURSES_FLAG)) {
+      ncurses_mode();
+    }
+  }
+  else {
+    normal_mode();
   }
 }

@@ -1,7 +1,7 @@
 #ifndef LAND_GEN
 #define LAND_GEN
 
-#include "world.h"
+#include "../structs/world.h"
 #include <time.h>
 #include <stdlib.h>
 

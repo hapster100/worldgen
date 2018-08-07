@@ -54,9 +54,9 @@ void normalize_higth(World* world) {
   }
 }
 
-int getHigth(int sum, int dx) {
+int getGenerateHigth(int sum, int dx) {
   srand(clock());
-  return (int)((float)sum/4 + rand()%(dx + 1)*GEN_PARAM - dx/2.0*GEN_PARAM );
+  return (int)((float)sum/4 + rand()%(dx + 1)*GEN_PARAM - dx*GEN_PARAM/2.0 );
 }
 
 void land_generator(World* world) {
@@ -69,7 +69,7 @@ void land_generator(World* world) {
     }
   }
 
-  getPlace(world, world->x_size/2, world->y_size/2)->higth = rand()%MAX_HIGTH;
+  getPlace(world, world->x_size/2, world->y_size/2)->higth = abs(getGenerateHigth(0, world->x_size));
 
   for (int dx = (world->x_size-1)/2; dx > 1; dx/=2) {
     for (int x = 0; x < world->x_size - 1; x+=dx) {
@@ -93,7 +93,7 @@ void square_step(World* world, int x0, int y0, int dx, int dy) {
       sum += getPlace(world, x0+i*dx, y0+j*dy)->higth;
     }
   }
-  getPlace(world, x0+dx/2, y0+dy/2)->higth = getHigth(sum, dx);
+  getPlace(world, x0+dx/2, y0+dy/2)->higth = getGenerateHigth(sum, dx);
 }
 
 void diamond_step(World* world, int x0, int y0, int dx, int dy) {
@@ -109,6 +109,6 @@ void diamond_step(World* world, int x0, int y0, int dx, int dy) {
     }
 
     Place* targ = getPlace(world, x, y);
-    targ->higth = getHigth(sum, dx/2);
+    targ->higth = getGenerateHigth(sum, dx/2);
   }
 }

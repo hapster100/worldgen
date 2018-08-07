@@ -1,6 +1,5 @@
-#include "worldgen.h"
+#include "world_generator.h"
 
 void generateWorld(World* world) {
   land_generator(world);
-  civ_generator(world);
 }
