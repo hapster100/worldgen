@@ -40,7 +40,7 @@ void printWorld(World* world, int d) {
       }
       Place look;
       look.type = "\u2588";
-      look.higth = ((sum+d/2)/d+d/2)/d ;
+      look.higth = ((sum+d/2)/d+d/2)/d;
       printColorPlace(look);
     };
     printf("\n");

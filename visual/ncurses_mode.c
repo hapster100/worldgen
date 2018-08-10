@@ -1,4 +1,5 @@
 #include "ncurses_mode.h"
+#include <locale.h>
 #include <time.h>
 
 #define EXIT -1
@@ -10,18 +11,21 @@
 #define HIGTH_MODE 0
 #define MODE_NUM 1
 
-#define NUM_SIZES 4
+#define SIZES_NUM 4
 
 static World world;
+static World scale;
 static int worldmode = -1;
 
 void ncurses_init() {
+  setlocale(LC_ALL, "");
   initscr();
   keypad(stdscr, TRUE);
   noecho();
   curs_set(0);
   start_color();
   init_color(COLOR_BLACK, 100, 100, 100);
+  init_color(COLOR_WHITE, 990, 890, 900);
   init_pair(0, COLOR_WHITE, COLOR_BLACK);
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   init_pair(2, COLOR_YELLOW, COLOR_BLACK);
@@ -49,7 +53,8 @@ void use_higth_colors() {
     }
 
     init_color(50+i, r, g, b);
-    init_pair(100+i, 50+i, 50+i);
+    init_color(100+i, r>500?0:1000,g>500?0:1000, b>500?0:1000);
+    init_pair(100+i, 100+i, 50+i);
   }
   worldmode = HIGTH_MODE;
 }
@@ -73,7 +78,7 @@ WINDOW* get_world_info() {
   wattrset(winfo, COLOR_PAIR(2));
   mvwaddstr(winfo, 1, (x_size-2)/2 - (strlen("WORLD INFO")-1)/2, "WORLD INFO");
   mvwaddstr(winfo, 2, 2, "name:");
-  mvwaddstr(winfo, 3, 2, "size: ");
+  mvwaddstr(winfo, 3, 2, "size:");
   wattroff(winfo, COLOR_PAIR(2));
 
   mvwprintw(winfo, 2, 2+6, "%s", world.name);
@@ -82,19 +87,25 @@ WINDOW* get_world_info() {
   return winfo;
 }
 
-WINDOW* get_world_win(int x0, int y0) {
+WINDOW* get_world_win(int x0, int y0, int place_x, int place_y, int scale) {
   int x_size = 66;
   int y_size = 33;
   WINDOW* wwin = newwin(y_size, x_size, LINES/2 - y_size/2, COLS/2 - x_size/2);
   box(wwin, 0, 0);
   for (int y = 0; y < y_size; y++) {
     for (int x = 0; x < x_size; x++) {
-      Place* place = getPlace(&world, y+y0, x+x0);
+      Place* place = getPlace(&world, x+x0, y+y0);
       int higth = place->higth;
 
-      wattrset(wwin, COLOR_PAIR(100+higth));
-      mvwprintw(wwin, y, 2*x,"  ");
-      wattroff(wwin, COLOR_PAIR(100+higth));
+      if(y+y0 == place_y && x+x0 == place_x) {
+        wattrset(wwin, COLOR_PAIR(100+higth));
+        mvwprintw(wwin, y, 2*x, "\u20aa ");
+        wattroff(wwin, COLOR_PAIR(100+higth));
+      } else {
+        wattrset(wwin, COLOR_PAIR(100+higth));
+        mvwprintw(wwin, y, 2*x, "  ");
+        wattroff(wwin, COLOR_PAIR(100+higth));
+      }
 
     }
   }
@@ -102,15 +113,22 @@ WINDOW* get_world_win(int x0, int y0) {
   return wwin;
 }
 
-WINDOW* get_place_info() {
+WINDOW* get_place_info(int x, int y) {
   int x_size = 25;
   int y_size = 5;
   WINDOW* pwin = newwin(y_size, x_size, LINES/2 - 33/2, COLS/2+66/2);
+  Place* pl = getPlace(&world, x, y);
   box(pwin,0,0);
 
   wattrset(pwin, COLOR_PAIR(2));
   mvwaddstr(pwin, 1, (x_size-2)/2 - (strlen("WORLD INFO")-1)/2, "PLACE INFO");
+  mvwaddstr(pwin, 2, 2, "x:     y:");
+  mvwaddstr(pwin, 3, 2, "higth:");
   wattroff(pwin, COLOR_PAIR(2));
+
+  mvwprintw(pwin, 2, 5, "%d", x);
+  mvwprintw(pwin, 2, 12, "%d", y);
+  mvwprintw(pwin, 3, 9, "%d", getHigth(pl));
 
   return pwin;
 }
@@ -169,8 +187,8 @@ int create() {
     seed[i] = (rand()*clock())%('z' - 'a') + 'a';
   }
 
-  char* sizesstr[NUM_SIZES] = {"33x33","65x65","129x129","513x513"};
-  int sizes[NUM_SIZES] = {33,65,129,513};
+  char* sizesstr[SIZES_NUM] = {"33x33","65x65","129x129","513x513"};
+  int sizes[SIZES_NUM] = {33,65,129,513};
   int curr_size = 0;
 
   int set_enter_x;
@@ -236,7 +254,7 @@ int create() {
     }
     addstr(": ");
 
-    for (int i = 0; i < NUM_SIZES; i++) {
+    for (int i = 0; i < SIZES_NUM; i++) {
       if(i == curr_size) {
         attrset(COLOR_PAIR(2));
         if(change_param && curr_param == 2) {
@@ -287,7 +305,7 @@ int create() {
       case KEY_RIGHT:
         if(change_param && curr_param == 2) {
           curr_size++;
-          if(curr_size > NUM_SIZES-1) curr_size = 2;
+          if(curr_size > SIZES_NUM-1) curr_size = SIZES_NUM-1;
         }
         break;
       case KEY_LEFT:
@@ -365,7 +383,7 @@ int world_scene() {
 
   int place_x = world.x_size/2, place_y = world.y_size/2;
   int x0 = world.x_size/2-33/2, y0 = world.y_size/2-33/2;
-  int dx, dy;
+  int scale = 1;
 
   int curr_mode = HIGTH_MODE;
   void (*modes[MODE_NUM])();
@@ -374,9 +392,9 @@ int world_scene() {
   do{
     if(curr_mode != worldmode) modes[curr_mode]();
     clearscreen();
-    world_win = get_world_win(x0, y0);
+    world_win = get_world_win(x0, y0, place_x, place_y, scale);
     world_info = get_world_info();
-    place_info = get_place_info();
+    place_info = get_place_info(place_x, place_y);
     refresh();
     wrefresh(world_win);
     wrefresh(world_info);
@@ -386,20 +404,28 @@ int world_scene() {
     ch = getch();
     switch (ch) {
       case KEY_UP:
+        place_y--;
         y0--;
         if(y0 < 0) y0 = 0;
+        if(place_y < 0) place_y = 0;
         break;
       case KEY_DOWN:
+        place_y++;
         y0++;
         if(y0 > world.y_size - 33) y0=world.y_size - 33;
+        if(place_y >= world.y_size) place_y = world.y_size-1;
         break;
       case KEY_RIGHT:
+        place_x++;
         x0++;
         if(x0 > world.x_size - 33) x0=world.x_size - 33;
+        if(place_x >= world.x_size) place_x = world.x_size-1;
         break;
       case KEY_LEFT:
+        place_x--;
         x0--;
         if(x0 < 0) x0 = 0;
+        if(place_x < 0) place_x = 0;
         break;
       case '\n':
         return EXIT;
