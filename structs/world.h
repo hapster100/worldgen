@@ -5,6 +5,7 @@
 #include <malloc.h>
 
 typedef struct World{
+  char* name;
   int x_size;
   int y_size;
   Place* map;

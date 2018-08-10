@@ -42,8 +42,8 @@ void normalize_higth(World* world) {
   int waterline = getWaterLine(world);
   int min = find_min_higth(world);
   int max = find_max_higth(world);
-  for (size_t i = 0; i < world->x_size; i++) {
-    for (size_t j = 0; j < world->y_size; j++) {
+  for (int i = 0; i < world->x_size; i++) {
+    for (int j = 0; j < world->y_size; j++) {
       Place* targ = getPlace(world, i, j);
       if(targ->higth<=waterline) {
         targ->higth=((targ->higth - waterline)*MIN_HIGTH)/(min - waterline);
@@ -55,13 +55,10 @@ void normalize_higth(World* world) {
 }
 
 int getGenerateHigth(int sum, int dx) {
-  srand(clock());
   return (int)((float)sum/4 + rand()%(dx + 1)*GEN_PARAM - dx*GEN_PARAM/2.0 );
 }
 
 void land_generator(World* world) {
-
-  srand(clock());
 
   for (int x = 0; x < 2; x++) {
     for (int y = 0; y < 2; y++) {

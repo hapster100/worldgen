@@ -2,6 +2,7 @@
 #define V_NORMAL_MODE
 
 #include <stdio.h>
+#include <time.h>
 #include "colorout.h"
 #include "../generators/world_generator.h"
 

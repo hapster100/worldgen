@@ -3,6 +3,8 @@
 World world_init(int x, int y) {
   World world;
 
+  world.name = malloc(15);
+
   world.x_size = x;
   world.y_size = y;
 

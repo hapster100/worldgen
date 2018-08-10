@@ -10,11 +10,11 @@ void printColorPlace(Place place) {
 
   if(place.higth < 0) {
     r=0;g=0;
-    b = 255 - (place.higth)*200/MIN_HIGTH;
+    b = 200 - (place.higth)*120/MIN_HIGTH;
   } else {
     b=0;
     if(place.higth < MAX_HIGTH/2) {
-      r=(place.higth*2*255)/MAX_HIGTH;
+      r=(place.higth*2*200)/MAX_HIGTH;
       g=200;
     } else {
       r=200;
@@ -49,7 +49,17 @@ void printWorld(World* world, int d) {
 }
 
 void normal_mode() {
-  World world = world_init(65, 65);
-  generateWorld(&world);
+  World world = world_init(33, 33);
+  char* seed= malloc(15);
+  printf("seed: ");
+  int c = 0;
+  int i;
+  for (i = 0; i < 15 && c!='\n'; i++) {
+    c = getchar();
+    seed[i] = c;
+  }
+  seed[i-1] = '\0';
+  printf("your seed:%s\n", seed);
+  generateWorld(&world, get_seed(seed));
   printWorld(&world, 1);
 }
