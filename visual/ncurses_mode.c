@@ -62,9 +62,7 @@ void use_higth_colors() {
 void clearscreen() {
   for (int i = 0; i < LINES; i++) {
     for(int j = 0; j < COLS; j++) {
-      attrset(COLOR_PAIR(0));
       mvaddch(i, j, ' ');
-      attroff(COLOR_PAIR(0));
     }
   }
 }
@@ -87,32 +85,6 @@ WINDOW* get_world_info() {
   return winfo;
 }
 
-WINDOW* get_world_win(int x0, int y0, int place_x, int place_y, int scale) {
-  int x_size = 66;
-  int y_size = 33;
-  WINDOW* wwin = newwin(y_size, x_size, LINES/2 - y_size/2, COLS/2 - x_size/2);
-  box(wwin, 0, 0);
-  for (int y = 0; y < y_size; y++) {
-    for (int x = 0; x < x_size; x++) {
-      Place* place = getPlace(&world, x+x0, y+y0);
-      int higth = place->higth;
-
-      if(y+y0 == place_y && x+x0 == place_x) {
-        wattrset(wwin, COLOR_PAIR(100+higth));
-        mvwprintw(wwin, y, 2*x, "\u20aa ");
-        wattroff(wwin, COLOR_PAIR(100+higth));
-      } else {
-        wattrset(wwin, COLOR_PAIR(100+higth));
-        mvwprintw(wwin, y, 2*x, "  ");
-        wattroff(wwin, COLOR_PAIR(100+higth));
-      }
-
-    }
-  }
-
-  return wwin;
-}
-
 WINDOW* get_place_info(int x, int y) {
   int x_size = 25;
   int y_size = 5;
@@ -132,6 +104,49 @@ WINDOW* get_place_info(int x, int y) {
 
   return pwin;
 }
+
+WINDOW* get_world_win(int place_x, int place_y, int scale) {
+  int x_size = 66;
+  int y_size = 33;
+  WINDOW* wwin = newwin(y_size, x_size, LINES/2 - y_size/2, COLS/2 - x_size/2);
+
+  int x0 = place_x - 15*scale;
+  int y0 = place_y - 15*scale;
+
+  if(x0 < 0) x0 = 0;
+  if(y0 < 0) y0 = 0;
+  if(x0 > world.x_size - 33*scale) x0 = world.x_size - 33*scale;
+  if(y0 > world.y_size - 33*scale) y0 = world.y_size - 33*scale;
+
+  for (int y = 0; y < y_size; y++) {
+    for (int x = 0; x < x_size/2; x++) {
+
+      int higthsum = 0;
+
+      for(int i = 0; i < scale; i++) {
+        for(int j = 0; j < scale; j++) {
+          higthsum += getHigth(getPlace(&world, x0 + x*scale + j, y0 + y*scale + i));
+        }
+      }
+
+      int higth = ((higthsum+scale/2)/scale)/scale;
+
+      if(place_y >= y0+y*scale && place_y < y0 + y*scale + scale && place_x >= x0+x*scale && place_x < x0 + x*scale + scale) {
+        wattrset(wwin, COLOR_PAIR(100+higth));
+        mvwprintw(wwin, y, 2*x, "\u20aa ");
+        wattroff(wwin, COLOR_PAIR(100+higth));
+      } else {
+        wattrset(wwin, COLOR_PAIR(100+higth));
+        mvwprintw(wwin, y, 2*x, "  ");
+        wattroff(wwin, COLOR_PAIR(100+higth));
+      }
+
+    }
+  }
+
+  return wwin;
+}
+
 
 int main_menu() {
   const int OPT_NUM = 3;
@@ -183,12 +198,13 @@ int create() {
 
   char* name = malloc(15);
   char* seed = malloc(15);
-  for(int i = 0; i < 5; i++){
+  for(int i = 0; i < 15; i++){
     seed[i] = (rand()*clock())%('z' - 'a') + 'a';
+    name[i] = '\0';
   }
 
-  char* sizesstr[SIZES_NUM] = {"33x33","65x65","129x129","513x513"};
-  int sizes[SIZES_NUM] = {33,65,129,513};
+  char* sizesstr[SIZES_NUM] = {"33x33","65x65","129x129","513x513"};//,"1025x1025"};
+  int sizes[SIZES_NUM] = {33,65,129,513};//,1025};
   int curr_size = 0;
 
   int set_enter_x;
@@ -382,53 +398,61 @@ int world_scene() {
   WINDOW* place_info;
 
   int place_x = world.x_size/2, place_y = world.y_size/2;
-  int x0 = world.x_size/2-33/2, y0 = world.y_size/2-33/2;
   int scale = 1;
 
   int curr_mode = HIGTH_MODE;
   void (*modes[MODE_NUM])();
+
   modes[HIGTH_MODE] = use_higth_colors;
 
   do{
     if(curr_mode != worldmode) modes[curr_mode]();
     clearscreen();
-    world_win = get_world_win(x0, y0, place_x, place_y, scale);
+    world_win = get_world_win(place_x, place_y, scale);
     world_info = get_world_info();
     place_info = get_place_info(place_x, place_y);
+    attrset(COLOR_PAIR(1) | A_BOLD);
+    mvaddstr(LINES/2+17, COLS/2-20, "q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move   m:menu");
+    attroff(COLOR_PAIR(1) | A_BOLD);
     refresh();
     wrefresh(world_win);
     wrefresh(world_info);
     wrefresh(place_info);
 
+
     int ch;
     ch = getch();
     switch (ch) {
       case KEY_UP:
-        place_y--;
-        y0--;
-        if(y0 < 0) y0 = 0;
+        place_y-=scale;
         if(place_y < 0) place_y = 0;
         break;
       case KEY_DOWN:
-        place_y++;
-        y0++;
-        if(y0 > world.y_size - 33) y0=world.y_size - 33;
+        place_y+=scale;
         if(place_y >= world.y_size) place_y = world.y_size-1;
         break;
       case KEY_RIGHT:
-        place_x++;
-        x0++;
-        if(x0 > world.x_size - 33) x0=world.x_size - 33;
+        place_x+=scale;
         if(place_x >= world.x_size) place_x = world.x_size-1;
         break;
       case KEY_LEFT:
-        place_x--;
-        x0--;
-        if(x0 < 0) x0 = 0;
+        place_x-=scale;
         if(place_x < 0) place_x = 0;
         break;
-      case '\n':
+      case '+':
+        scale/=2;
+        if(scale < 1) scale = 1;
+        break;
+      case '-':
+        scale*=2;
+        if(scale > (world.x_size+1)/33) scale = (world.x_size+1)/33;
+        break;
+      case 'q':
         return EXIT;
+        break;
+      case 'm':
+        return MINE_MENU;
+        break;
     }
   }while(true);
 }
