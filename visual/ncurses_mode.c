@@ -9,7 +9,8 @@
 #define SCENE_NUM 3
 
 #define HIGTH_MODE 0
-#define MODE_NUM 1
+#define TERM_MODE 1
+#define MODE_NUM 2
 
 #define SIZES_NUM 4
 
@@ -59,6 +60,30 @@ void use_higth_colors() {
   worldmode = HIGTH_MODE;
 }
 
+void use_term_colors() {
+  for (int i = MIN_TERM; i <= MAX_TERM; i++) {
+
+    int r=0, g=0, b=0;
+    if(i > MIN_TERM/2){
+      r = (i-MIN_TERM/2)*1000.0/(MAX_TERM-MIN_TERM/2);
+    }
+    if(i < 0) {
+      b = i*1000.0/MIN_TERM;
+    }
+    if(i > MIN_TERM/2 && i <= 0) {
+      //g = (i - MIN_TERM/2)*1000/(-MIN_TERM/2);
+    }
+    if(i < MAX_TERM/2 && i >= 0) {
+      //g = (MAX_TERM/2-i)*1000.0/(MAX_TERM/2);
+    }
+
+    init_color(50+i, r, g, b);
+    init_color(100+i, 1000, 1000, 1000);
+    init_pair(100+i, 100+i, 50+i);
+  }
+  worldmode = TERM_MODE;
+}
+
 void clearscreen() {
   for (int i = 0; i < LINES; i++) {
     for(int j = 0; j < COLS; j++) {
@@ -87,7 +112,7 @@ WINDOW* get_world_info() {
 
 WINDOW* get_place_info(int x, int y) {
   int x_size = 25;
-  int y_size = 5;
+  int y_size = 6;
   WINDOW* pwin = newwin(y_size, x_size, LINES/2 - 33/2, COLS/2+66/2);
   Place* pl = getPlace(&world, x, y);
   box(pwin,0,0);
@@ -96,16 +121,18 @@ WINDOW* get_place_info(int x, int y) {
   mvwaddstr(pwin, 1, (x_size-2)/2 - (strlen("WORLD INFO")-1)/2, "PLACE INFO");
   mvwaddstr(pwin, 2, 2, "x:     y:");
   mvwaddstr(pwin, 3, 2, "higth:");
+  mvwaddstr(pwin, 4, 2, "term:");
   wattroff(pwin, COLOR_PAIR(2));
 
   mvwprintw(pwin, 2, 5, "%d", x);
   mvwprintw(pwin, 2, 12, "%d", y);
   mvwprintw(pwin, 3, 9, "%d", getHigth(pl));
+  mvwprintw(pwin, 4, 8, "%d", getTerm(pl));
 
   return pwin;
 }
 
-WINDOW* get_world_win(int place_x, int place_y, int scale) {
+WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*)) {
   int x_size = 66;
   int y_size = 33;
   WINDOW* wwin = newwin(y_size, x_size, LINES/2 - y_size/2, COLS/2 - x_size/2);
@@ -121,15 +148,15 @@ WINDOW* get_world_win(int place_x, int place_y, int scale) {
   for (int y = 0; y < y_size; y++) {
     for (int x = 0; x < x_size/2; x++) {
 
-      int higthsum = 0;
+      int sum = 0;
 
       for(int i = 0; i < scale; i++) {
         for(int j = 0; j < scale; j++) {
-          higthsum += getHigth(getPlace(&world, x0 + x*scale + j, y0 + y*scale + i));
+          sum += get(getPlace(&world, x0 + x*scale + j, y0 + y*scale + i));
         }
       }
 
-      int higth = ((higthsum+scale/2)/scale)/scale;
+      int higth = ((sum+scale/2)/scale)/scale;
 
       if(place_y >= y0+y*scale && place_y < y0 + y*scale + scale && place_x >= x0+x*scale && place_x < x0 + x*scale + scale) {
         wattrset(wwin, COLOR_PAIR(100+higth));
@@ -402,17 +429,29 @@ int world_scene() {
 
   int curr_mode = HIGTH_MODE;
   void (*modes[MODE_NUM])();
+  int (*getters[MODE_NUM])(Place*);
 
   modes[HIGTH_MODE] = use_higth_colors;
+  getters[HIGTH_MODE] = getHigth;
+
+  modes[TERM_MODE] = use_term_colors;
+  getters[TERM_MODE] = getTerm;
+
+  char* modesstr[MODE_NUM] = {" F1:HIGTH ", " F2:TERM  "};
 
   do{
     if(curr_mode != worldmode) modes[curr_mode]();
     clearscreen();
-    world_win = get_world_win(place_x, place_y, scale);
+    for (int i = 0; i < MODE_NUM; i++) {
+      if(i == curr_mode) attrset(COLOR_PAIR(1));
+      mvaddstr(LINES/2-17, COLS/2-33+i*10, modesstr[i]);
+      if(i == curr_mode) attroff(COLOR_PAIR(1));
+    }
+    world_win = get_world_win(place_x, place_y, scale, getters[curr_mode]);
     world_info = get_world_info();
     place_info = get_place_info(place_x, place_y);
     attrset(COLOR_PAIR(1) | A_BOLD);
-    mvaddstr(LINES/2+17, COLS/2-20, "q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move   m:menu");
+    mvaddstr(LINES/2+17, COLS/2-21, "  q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move  m:menu  ");
     attroff(COLOR_PAIR(1) | A_BOLD);
     refresh();
     wrefresh(world_win);
@@ -438,6 +477,12 @@ int world_scene() {
       case KEY_LEFT:
         place_x-=scale;
         if(place_x < 0) place_x = 0;
+        break;
+      case KEY_F(1):
+        curr_mode = HIGTH_MODE;
+        break;
+      case KEY_F(2):
+        curr_mode = TERM_MODE;
         break;
       case '+':
         scale/=2;

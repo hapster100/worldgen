@@ -3,6 +3,7 @@
 
 #include "../structs/world.h"
 #include "land_generator.h"
+#include "term_generator.h"
 #include <stdlib.h>
 #include <string.h>
 
