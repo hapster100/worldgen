@@ -35,26 +35,34 @@ void ncurses_init() {
 void use_higth_colors() {
   for (int i = MIN_HIGTH; i <= MAX_HIGTH; i++) {
     int r=0,g=0,b=0;
-    r=(int)(i-MIN_HIGTH)*999.0/(MAX_HIGTH-MIN_HIGTH);
-    g=r;
-    b=r;
+
+    //  ____HIGTH____ ____RGB____
+    //  MIN_HIGTH.....000:000:000
+    //  MIN_HIGTH/2...000:000:999
+    //  0.............111:999:000
+    //  MAX_HIGTH/4...555:888:000
+    //  MAX_HIGTH/2...999:666:000
+    //  3*MAX_HIGTH/4.999:333:000
+    //  MAX_HIGTH.....999:000:000
 
     if(i < 0) {
-      r=0;g=0;
-      b = 999 - (i)*800/MIN_HIGTH;
-    } else {
-      b=0;
-      if(i < MAX_HIGTH/2) {
-        r=(i*2*999)/MAX_HIGTH;
-        g=999;
-      } else {
-        r=999;
-        g=999-((i-MAX_HIGTH/2)*2*999)/MAX_HIGTH;
-      }
+      b = 999 - i*999/MIN_HIGTH;
+    } else if (i < MAX_HIGTH/4) {
+      r = 111 + i*444/(MAX_HIGTH/4);
+      g = 999 - i*111/(MAX_HIGTH/4);
+    } else if (i < MAX_HIGTH/2) {
+      r = 555 + (i - MAX_HIGTH/4)*444/(MAX_HIGTH/2 - MAX_HIGTH/4);
+      g = 888 - (i - MAX_HIGTH/4)*222/(MAX_HIGTH/2 - MAX_HIGTH/4);
+    } else if (i < 3*MAX_HIGTH/4) {
+      r = 999 + (i - MAX_HIGTH/2)*0/(3*MAX_HIGTH/4 - MAX_HIGTH/2);
+      g = 666 - (i - MAX_HIGTH/2)*333/(3*MAX_HIGTH/4 - MAX_HIGTH/2);
+    } else if (i <=MAX_HIGTH){
+      r = 999;
+      g = 333 - (i - 3*MAX_HIGTH/4)*333/(MAX_HIGTH - 3*MAX_HIGTH/4);
     }
 
     init_color(50+i, r, g, b);
-    init_color(100+i, r>500?0:1000,g>500?0:1000, b>500?0:1000);
+    init_color(100+i, 1000, 1000, 0);
     init_pair(100+i, 100+i, 50+i);
   }
   worldmode = HIGTH_MODE;
@@ -64,17 +72,30 @@ void use_term_colors() {
   for (int i = MIN_TERM; i <= MAX_TERM; i++) {
 
     int r=0, g=0, b=0;
-    if(i > MIN_TERM/2){
-      r = (i-MIN_TERM/2)*1000.0/(MAX_TERM-MIN_TERM/2);
-    }
-    if(i < 0) {
-      b = i*1000.0/MIN_TERM;
-    }
-    if(i > MIN_TERM/2 && i <= 0) {
-      //g = (i - MIN_TERM/2)*1000/(-MIN_TERM/2);
-    }
-    if(i < MAX_TERM/2 && i >= 0) {
-      //g = (MAX_TERM/2-i)*1000.0/(MAX_TERM/2);
+
+    //  ____TERM____ ____RGB____
+    //  MIN_TERM.....000:000:999
+    //  MIN_TERM/2...000:500:999
+    //  0............000:999:500
+    //  MAX_TERM/2...999:999:000
+    //  MAX_TERM.....999:000:000
+
+    if(i < MIN_TERM/2){
+      r = 0;
+      g = 500*(i - MIN_TERM)/(MIN_TERM/2 - MIN_TERM);
+      b = 999;
+    } else if(i<0) {
+      r = 0;
+      g = 499*(i - MIN_TERM/2)/(-MIN_TERM/2) + 500;
+      b = 999 - exp(g*log(1000)/999.f) - 1;
+    } else if(i<MAX_TERM/2) {
+      r = 999*i/(MAX_TERM/2);
+      g = 999;
+      b = 0;
+    } else if(i <= MAX_TERM) {
+      r = 999;
+      g = 999 - 999*(i - MAX_TERM/2)/(MAX_TERM - MAX_TERM/2);
+      b = 0;
     }
 
     init_color(50+i, r, g, b);
@@ -442,17 +463,22 @@ int world_scene() {
   do{
     if(curr_mode != worldmode) modes[curr_mode]();
     clearscreen();
+
     for (int i = 0; i < MODE_NUM; i++) {
-      if(i == curr_mode) attrset(COLOR_PAIR(1));
+      if(i == curr_mode) attrset(COLOR_PAIR(1) | A_BOLD);
       mvaddstr(LINES/2-17, COLS/2-33+i*10, modesstr[i]);
-      if(i == curr_mode) attroff(COLOR_PAIR(1));
+      if(i == curr_mode) attroff(COLOR_PAIR(1) | A_BOLD);
     }
+
+    attrset(COLOR_PAIR(1) | A_BOLD);
+    mvprintw(LINES/2 -17, COLS/2 + 28, " 1:%d ", scale);
+    mvaddstr(LINES/2+17, COLS/2-21, "  q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move  m:menu  ");
+    attroff(COLOR_PAIR(1) | A_BOLD);
+
     world_win = get_world_win(place_x, place_y, scale, getters[curr_mode]);
     world_info = get_world_info();
     place_info = get_place_info(place_x, place_y);
-    attrset(COLOR_PAIR(1) | A_BOLD);
-    mvaddstr(LINES/2+17, COLS/2-21, "  q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move  m:menu  ");
-    attroff(COLOR_PAIR(1) | A_BOLD);
+
     refresh();
     wrefresh(world_win);
     wrefresh(world_info);
@@ -485,11 +511,11 @@ int world_scene() {
         curr_mode = TERM_MODE;
         break;
       case '+':
-        scale/=2;
+        scale--;
         if(scale < 1) scale = 1;
         break;
       case '-':
-        scale*=2;
+        scale++;
         if(scale > (world.x_size+1)/33) scale = (world.x_size+1)/33;
         break;
       case 'q':

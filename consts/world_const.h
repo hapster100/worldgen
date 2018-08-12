@@ -5,6 +5,7 @@ const int MIN_HIGTH;
 const int MAX_HIGTH;
 
 const float GEN_PARAM;
+const float TERM_PARAM;
 const int WATER_PROC;
 
 const int MIN_TERM;
