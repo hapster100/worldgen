@@ -22,26 +22,22 @@ void printColorPlace(Place place) {
     }
   }
 
+  if(place.type == T_RIVER) {
+    r = 0;
+    g = 250;
+    b = 250;
+  }
   colorMode(r,g,b);
-  printf("%s%s", place.type, place.type);
+  printf("\u2588\u2588");
   resetColor();
 }
 
-void printWorld(World* world, int d) {
+void printWorld(World* world) {
   printf("\n");
-  for (int i = 0; i < world->x_size; i+=d) {
+  for (int i = 0; i < world->x_size; i++) {
     printf(" ");
-    for (int j = 0; j < world->y_size; j+=d) {
-      int sum = 0;
-      for (int x = 0; x < d; x++) {
-        for (int y = 0; y < d; y++) {
-          sum+=getPlace(world, i+x, j+y)->higth;
-        }
-      }
-      Place look;
-      look.type = "\u2588";
-      look.higth = ((sum+d/2)/d+d/2)/d;
-      printColorPlace(look);
+    for (int j = 0; j < world->y_size; j++) {
+      printColorPlace(*getPlace(world, i, j));
     };
     printf("\n");
   }
@@ -49,7 +45,7 @@ void printWorld(World* world, int d) {
 }
 
 void normal_mode() {
-  World world = world_init(33, 33);
+  World world = world_init(2049, 2049);
   char* seed= malloc(15);
   printf("seed: ");
   int c = 0;
@@ -61,5 +57,5 @@ void normal_mode() {
   seed[i-1] = '\0';
   printf("your seed:%s\n", seed);
   generateWorld(&world, get_seed(seed));
-  printWorld(&world, 1);
+  printWorld(&world);
 }

@@ -8,19 +8,19 @@ void term_generator(World* world) {
       Place* pl = getPlace(world, i, j);
       int term = TERM_PARAM*(ys/2 - pow(abs(j - ys/2),2)*2/ys) * (dt)/ys + MIN_TERM;
       if(pl->higth >=0) {
-        if(pl->higth > 3*MAX_HIGTH/4) {
-          term += 2*(MAX_HIGTH/2 - pl->higth);
+        if(pl->higth > MAX_HIGTH/2) {
+          term += 4*(MAX_HIGTH/2 - pl->higth);
         } else {
-          term += MAX_HIGTH/2 - pl->higth;
+          term += (MAX_HIGTH/2 - pl->higth)/2;
         }
       } else if(pl->higth < 0) {
         if(pl->higth < MIN_HIGTH/2) {
-          term -= (MIN_HIGTH/2 - pl->higth)/2;
+          term -= (MIN_HIGTH/2 - pl->higth);
         } else {
-          term+=1;
+          term -= (MIN_HIGTH/2 - pl->higth)/2;
         }
       }
-      term += rand()%7 - 3;
+      term += rand()%3 - 1;
       if(term < MIN_TERM) term = MIN_TERM;
       if(term > MAX_TERM) term = MAX_TERM;
       pl->term = term;

@@ -12,7 +12,7 @@
 #define TERM_MODE 1
 #define MODE_NUM 2
 
-#define SIZES_NUM 4
+#define SIZES_NUM 5
 
 static World world;
 static World scale;
@@ -32,12 +32,18 @@ void ncurses_init() {
   init_pair(2, COLOR_YELLOW, COLOR_BLACK);
 }
 
+void forget_color() {
+  for (int i = -25; i <= 25 ; i++) {
+    init_pair(i+100, COLOR_BLACK, COLOR_BLACK);
+  }
+}
+
 void use_higth_colors() {
   for (int i = MIN_HIGTH; i <= MAX_HIGTH; i++) {
     int r=0,g=0,b=0;
 
     //  ____HIGTH____ ____RGB____
-    //  MIN_HIGTH.....000:000:000
+    //  MIN_HIGTH.....000:000:222
     //  MIN_HIGTH/2...000:000:999
     //  0.............111:999:000
     //  MAX_HIGTH/4...555:888:000
@@ -46,7 +52,7 @@ void use_higth_colors() {
     //  MAX_HIGTH.....999:000:000
 
     if(i < 0) {
-      b = 999 - i*999/MIN_HIGTH;
+      b = 999 - i*777/MIN_HIGTH;
     } else if (i < MAX_HIGTH/4) {
       r = 111 + i*444/(MAX_HIGTH/4);
       g = 999 - i*111/(MAX_HIGTH/4);
@@ -140,15 +146,15 @@ WINDOW* get_place_info(int x, int y) {
 
   wattrset(pwin, COLOR_PAIR(2));
   mvwaddstr(pwin, 1, (x_size-2)/2 - (strlen("WORLD INFO")-1)/2, "PLACE INFO");
-  mvwaddstr(pwin, 2, 2, "x:     y:");
+  mvwaddstr(pwin, 2, 2, "x:       y:");
   mvwaddstr(pwin, 3, 2, "higth:");
   mvwaddstr(pwin, 4, 2, "term:");
   wattroff(pwin, COLOR_PAIR(2));
 
-  mvwprintw(pwin, 2, 5, "%d", x);
-  mvwprintw(pwin, 2, 12, "%d", y);
-  mvwprintw(pwin, 3, 9, "%d", getHigth(pl));
-  mvwprintw(pwin, 4, 8, "%d", getTerm(pl));
+  mvwprintw(pwin, 2, 5, "%4d", x);
+  mvwprintw(pwin, 2, 14, "%4d", y);
+  mvwprintw(pwin, 3, 9, "%3d", getHigth(pl));
+  mvwprintw(pwin, 4, 9, "%3d", getTerm(pl));
 
   return pwin;
 }
@@ -158,8 +164,8 @@ WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*)) {
   int y_size = 33;
   WINDOW* wwin = newwin(y_size, x_size, LINES/2 - y_size/2, COLS/2 - x_size/2);
 
-  int x0 = place_x - 15*scale;
-  int y0 = place_y - 15*scale;
+  int x0 = (place_x - 15*scale)/scale*scale;
+  int y0 = (place_y - 15*scale)/scale*scale;
 
   if(x0 < 0) x0 = 0;
   if(y0 < 0) y0 = 0;
@@ -169,17 +175,22 @@ WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*)) {
   for (int y = 0; y < y_size; y++) {
     for (int x = 0; x < x_size/2; x++) {
 
-      int sum = 0;
+      int higth = 0;
 
       for(int i = 0; i < scale; i++) {
         for(int j = 0; j < scale; j++) {
-          sum += get(getPlace(&world, x0 + x*scale + j, y0 + y*scale + i));
+            int curH =  get(getPlace(&world, x0 + x*scale + j, y0 + y*scale + i));
+            if(abs(curH) > abs(higth)) {
+              higth = curH;
+            }
         }
       }
 
-      int higth = ((sum+scale/2)/scale)/scale;
 
-      if(place_y >= y0+y*scale && place_y < y0 + y*scale + scale && place_x >= x0+x*scale && place_x < x0 + x*scale + scale) {
+      if(place_y >= y0+y*scale &&
+         place_y < y0 + y*scale + scale &&
+         place_x >= x0+x*scale &&
+         place_x < x0 + x*scale + scale) {
         wattrset(wwin, COLOR_PAIR(100+higth));
         mvwprintw(wwin, y, 2*x, "\u20aa ");
         wattroff(wwin, COLOR_PAIR(100+higth));
@@ -251,8 +262,8 @@ int create() {
     name[i] = '\0';
   }
 
-  char* sizesstr[SIZES_NUM] = {"33x33","65x65","129x129","513x513"};//,"1025x1025"};
-  int sizes[SIZES_NUM] = {33,65,129,513};//,1025};
+  char* sizesstr[SIZES_NUM] = {"33x33","65x65","129x129","513x513","1025x1025"};
+  int sizes[SIZES_NUM] = {33,65,129,513,1025};
   int curr_size = 0;
 
   int set_enter_x;
@@ -461,7 +472,10 @@ int world_scene() {
   char* modesstr[MODE_NUM] = {" F1:HIGTH ", " F2:TERM  "};
 
   do{
-    if(curr_mode != worldmode) modes[curr_mode]();
+    if(curr_mode != worldmode) {
+      forget_color();
+      modes[curr_mode]();
+    }
     clearscreen();
 
     for (int i = 0; i < MODE_NUM; i++) {
@@ -471,7 +485,7 @@ int world_scene() {
     }
 
     attrset(COLOR_PAIR(1) | A_BOLD);
-    mvprintw(LINES/2 -17, COLS/2 + 28, " 1:%d ", scale);
+    mvprintw(LINES/2 -17, COLS/2 + 27, " 1:%2d ", scale);
     mvaddstr(LINES/2+17, COLS/2-21, "  q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move  m:menu  ");
     attroff(COLOR_PAIR(1) | A_BOLD);
 
@@ -516,7 +530,7 @@ int world_scene() {
         break;
       case '-':
         scale++;
-        if(scale > (world.x_size+1)/33) scale = (world.x_size+1)/33;
+        if(scale > (world.x_size-1)/33 +1) scale = (world.x_size-1)/33+1;
         break;
       case 'q':
         return EXIT;

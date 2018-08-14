@@ -9,7 +9,7 @@ void generateWorld(World* world, int seed) {
 int get_seed(char* seedstr) {
   int intseed = 0;
   for (int i = 0; i < strlen(seedstr); i++) {
-    intseed += (int)(seedstr[i]*23)/2000003;
+    intseed += (int)(seedstr[i]*seedstr[i] + seedstr[i]%23)%2000003;
   }
   return intseed;
 }

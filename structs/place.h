@@ -1,17 +1,21 @@
 #ifndef PLACE_STRUCT
 #define PLACE_STRUCT
 
-#define U_BLOCK "\u2588"
-
 #include "../consts/world_const.h"
 #include <stdio.h>
+
+#define T_NONE 0
+#define T_RIVER 1
+#define T_MOUNT 2
+#define T_FOREST 3
+#define T_DESERT 4
 
 const struct Place NULL_PLACE;
 
 typedef struct Place{
-  int higth;
-  int term;
-  const char* type;
+  char higth;
+  char term;
+  char type;
 } Place;
 
 int getTerm(Place* place);

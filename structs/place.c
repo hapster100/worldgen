@@ -1,6 +1,6 @@
 #include "place.h"
 
-const Place NULL_PLACE = { 0, 0, "\u2588"};
+const Place NULL_PLACE = { -1, 0, T_NONE};
 
 int getTerm(Place* place) {
   return place->term;

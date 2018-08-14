@@ -6,8 +6,8 @@
 
 typedef struct World{
   char* name;
-  int x_size;
-  int y_size;
+  short x_size;
+  short y_size;
   Place* map;
 } World;
 
