@@ -150,6 +150,8 @@ int create_world() {
             _gl_world.seed = get_seed(seed);
 
             generateWorld(&_gl_world);
+            _gl_x = _gl_world.x_size/2;
+            _gl_y = _gl_world.y_size/2;
 
             free(name);
             free(seed);

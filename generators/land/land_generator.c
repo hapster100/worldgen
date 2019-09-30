@@ -45,7 +45,7 @@ void normalize_higth(World* world) {
   for (int i = 0; i < world->x_size; i++) {
     for (int j = 0; j < world->y_size; j++) {
       Place* targ = getPlace(world, i, j);
-      if(targ->higth<=waterline) {
+      if(targ->higth<waterline) {
         targ->higth=((targ->higth - waterline)*MIN_HIGTH)/(min - waterline);
         targ->type=T_WATER;
       } else {

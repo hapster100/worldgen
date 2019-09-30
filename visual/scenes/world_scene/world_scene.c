@@ -52,7 +52,7 @@ WINDOW* get_place_info(int x, int y) {
   return pwin;
 }
 
-WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*)) {
+WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*), int mode) {
   int x_size = 66;
   int y_size = 33;
   WINDOW* wwin = newwin(y_size, x_size, LINES/2 - y_size/2, COLS/2 - x_size/2);
@@ -69,7 +69,6 @@ WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*)) {
     for (int x = 0; x < x_size/2; x++) {
 
       int higth = 0;
-
       for(int i = 0; i < scale; i++) {
         for(int j = 0; j < scale; j++) {
             int curH =  get(getPlace(&_gl_world, x0 + x*scale + j, y0 + y*scale + i));
@@ -79,19 +78,25 @@ WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*)) {
         }
       }
 
+      char* to_print_l = " ";
+      char* to_print_r = " ";
 
-      if(place_y >= y0+y*scale &&
+      if (mode == DANG_MODE && higth == T_DANGEON) {
+        to_print_l = "\u2186";
+        to_print_r = "\u2186";  
+      }
+      if (place_y >= y0+y*scale &&
          place_y < y0 + y*scale + scale &&
          place_x >= x0+x*scale &&
-         place_x < x0 + x*scale + scale) {
-        wattrset(wwin, COLOR_PAIR(100+higth));
-        mvwprintw(wwin, y, 2*x, "\u0b67\u0b68");
-        wattroff(wwin, COLOR_PAIR(100+higth));
-      } else {
-        wattrset(wwin, COLOR_PAIR(100+higth));
-        mvwprintw(wwin, y, 2*x, "  ");
-        wattroff(wwin, COLOR_PAIR(100+higth));
-      }
+         place_x < x0 + x*scale + scale) 
+      {
+        to_print_l = "\u25a3";
+        to_print_r = " ";
+      } 
+      
+      wattrset(wwin, COLOR_PAIR(100+higth));
+      mvwprintw(wwin, y, 2*x, "%s%s", to_print_l, to_print_r);
+      wattroff(wwin, COLOR_PAIR(100+higth));
 
     }
   }
@@ -107,7 +112,7 @@ int world_scene() {
   WINDOW* world_info;
   WINDOW* place_info;
 
-  int place_x = _gl_world.x_size/2, place_y = _gl_world.y_size/2;
+  int place_x = _gl_x, place_y = _gl_y;
   int scale = 1;
 
   int curr_mode = 0;
@@ -147,7 +152,7 @@ int world_scene() {
     mvaddstr(LINES/2+17, COLS/2-21, "  q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move  m:menu  ");
     attroff(COLOR_PAIR(1) | A_BOLD);
 
-    world_win = get_world_win(place_x, place_y, scale, getters[curr_mode]);
+    world_win = get_world_win(place_x, place_y, scale, getters[curr_mode], worldmode);
     world_info = get_world_info();
     place_info = get_place_info(place_x, place_y);
 
@@ -201,7 +206,11 @@ int world_scene() {
         switch (getType(getPlace(&_gl_world, place_x, place_y)))
         {
         case T_DANGEON:
+          
           to_dange(place_x, place_y);
+          _gl_x=place_x;
+          _gl_y=place_y;
+
           return DANGEON;
           break;
         default:

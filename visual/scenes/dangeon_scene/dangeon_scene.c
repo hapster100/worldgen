@@ -76,7 +76,9 @@ int dangeon_scene()
 
     switch (getch())
     {
-
+    case '\n':
+      return WORLD;
+      break;
     case 'q':
       return EXIT;
       break;

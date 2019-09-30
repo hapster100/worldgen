@@ -3,7 +3,10 @@
 
 #include "../../structs/world.h"
 
+int _gl_x;
+int _gl_y;
 World _gl_world;
 level* _gl_dange;
+
 
 #endif
