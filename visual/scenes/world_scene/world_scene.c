@@ -6,6 +6,10 @@ void forget_color() {
   }
 }
 
+void to_dange(int x, int y) {
+  _gl_dange = get_dange(&_gl_world, x, y);
+}
+
 WINDOW* get_world_info() {
   int x_size = 25;
   int y_size = 5;
@@ -81,7 +85,7 @@ WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*)) {
          place_x >= x0+x*scale &&
          place_x < x0 + x*scale + scale) {
         wattrset(wwin, COLOR_PAIR(100+higth));
-        mvwprintw(wwin, y, 2*x, "\u20aa ");
+        mvwprintw(wwin, y, 2*x, "\u0b67\u0b68");
         wattroff(wwin, COLOR_PAIR(100+higth));
       } else {
         wattrset(wwin, COLOR_PAIR(100+higth));
@@ -106,27 +110,24 @@ int world_scene() {
   int place_x = _gl_world.x_size/2, place_y = _gl_world.y_size/2;
   int scale = 1;
 
-
   int curr_mode = 0;
 
   int (*modes[MODE_NUM])();
   int (*getters[MODE_NUM])(Place*);
+  char* modesstr[MODE_NUM];
 
   modes[HIGTH_MODE] = use_higth_colors;
   getters[HIGTH_MODE] = getHigth;
+  modesstr[HIGTH_MODE] = " F2:HIGTH ";
 
   modes[TERM_MODE] = use_term_colors;
   getters[TERM_MODE] = getTerm;
+  modesstr[TERM_MODE] = " F3:TERM  ";
 
   modes[DANG_MODE] = use_dange_colors;
   getters[DANG_MODE] = getType;
-
-  // char* modesstr[MODE_NUM] = {" F1:HIGTH ", " F2:TERM  ", " F3:DANGE "};
-
-  char* modesstr[MODE_NUM];
-  modesstr[HIGTH_MODE] = " F2:HIGTH ";
-  modesstr[TERM_MODE] = " F3:TERM  ";
   modesstr[DANG_MODE] = " F1:DANGE ";
+
 
   do{
     if(curr_mode != worldmode) {
@@ -196,6 +197,17 @@ int world_scene() {
         if(scale > (_gl_world.x_size-1)/33 +1) scale = (_gl_world.x_size-1)/33+1;
         break;
       
+      case '\n':
+        switch (getType(getPlace(&_gl_world, place_x, place_y)))
+        {
+        case T_DANGEON:
+          to_dange(place_x, place_y);
+          return DANGEON;
+          break;
+        default:
+          break;
+        }
+        break;
       case 'q':
         return EXIT;
         break;

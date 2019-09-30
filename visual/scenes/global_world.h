@@ -4,5 +4,6 @@
 #include "../../structs/world.h"
 
 World _gl_world;
+level* _gl_dange;
 
 #endif

@@ -31,7 +31,7 @@ level* get_dange(World* world, int x, int y)
     if(!p->lvl) 
     {
       srand(world->seed + x + y * (world->x_size));
-      p->lvl = generate_dangeon_map(33,33);
+      p->lvl = generate_dangeon_map(32,64);
       srand(world->seed);
       return p->lvl;
     }

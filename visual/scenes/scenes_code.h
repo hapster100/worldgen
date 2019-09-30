@@ -5,6 +5,7 @@
 #define MINE_MENU 0
 #define CREATE 1
 #define WORLD 2
-#define SCENE_NUM 3
+#define DANGEON 3
+#define SCENE_NUM 4
 
 #endif

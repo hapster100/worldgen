@@ -14,12 +14,6 @@ void ncurses_init() {
   init_pair(2, COLOR_YELLOW, COLOR_BLACK);
 }
 
-//TODO//
-int dange_scene() {
-  return 0;
-}
-////////
-
 void ncurses_mode() {
   ncurses_init();
 
@@ -28,6 +22,7 @@ void ncurses_mode() {
   scenes[MINE_MENU] = main_menu;
   scenes[CREATE] = create_world;
   scenes[WORLD] = world_scene;
+  scenes[DANGEON] = dangeon_scene;
 
   int current_scene = main_menu();
   while(current_scene!=EXIT) {

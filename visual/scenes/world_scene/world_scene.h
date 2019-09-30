@@ -7,6 +7,7 @@
 #include "../global_world.h"
 #include "../scenes_code.h"
 #include "../../ncurses_tools/ncurses_tools.h"
+#include "../../../generators/world_generator.h"
 
 #include "./color_modes/higth_mode/higth_mode.h"
 #include "./color_modes/term_mode/term_mode.h"
