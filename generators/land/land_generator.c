@@ -47,8 +47,10 @@ void normalize_higth(World* world) {
       Place* targ = getPlace(world, i, j);
       if(targ->higth<=waterline) {
         targ->higth=((targ->higth - waterline)*MIN_HIGTH)/(min - waterline);
+        targ->type=T_WATER;
       } else {
         targ->higth=((targ->higth - waterline)*MAX_HIGTH)/(max - waterline);
+        targ->type=T_LAND;
       }
     }
   }

@@ -6,6 +6,7 @@
 
 typedef struct World{
   char* name;
+  int seed;
   short x_size;
   short y_size;
   Place* map;

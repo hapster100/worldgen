@@ -17,8 +17,9 @@ World world_init(int x, int y) {
 }
 
 Place* getPlace(World* world, int x, int y) {
+  static Place null_place = { -1, 0, T_NONE};
   if(x >= world->x_size || x < 0 || y >= world->y_size || y < 0) {
-    return &NULL_PLACE;
+    return &null_place;
   } else {
     return &(world->map)[x + y * world->x_size];
   }

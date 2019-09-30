@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include "../structs/world.h"
+#include "../../structs/world.h"
 
 void term_generator(World* wrold);
 
