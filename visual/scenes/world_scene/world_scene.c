@@ -10,6 +10,19 @@ void to_dange(int x, int y) {
   _gl_dange = get_dange(&_gl_world, x, y);
 }
 
+int is_world_move_able(int dx, int dy) {
+  
+  int x_to = _gl_x + dx;
+  int y_to = _gl_y + dy;
+  
+  if (!vec_in_area(v(x_to, y_to), v(0,0), v(_gl_world.x_size-1, _gl_world.y_size-1))) 
+    return 0;
+  else if (getType(getPlace(&_gl_world, x_to, y_to)) == T_WATER) 
+    return 0;
+  else
+    return 1; 
+}
+
 WINDOW* get_world_info() {
   int x_size = 25;
   int y_size = 5;
@@ -50,6 +63,28 @@ WINDOW* get_place_info(int x, int y) {
   mvwprintw(pwin, 5, 8, place_type_str[getType(pl)]);
 
   return pwin;
+}
+
+WINDOW* get_hero_info() {
+  int x_size = 25;
+  int y_size = 6;
+  
+  WINDOW* winfo = newwin(y_size, x_size, LINES/2 - 33/2 + 5, COLS/2 -66/2 -x_size);
+  box(winfo, 0, 0);
+
+  wattrset(winfo, COLOR_PAIR(2));
+
+  mvwaddstr(winfo, 1, 7, "HERO INFO");
+  mvwaddstr(winfo, 2, 2, "name:");
+  mvwaddstr(winfo, 3, 2, "money:");
+
+  wattroff(winfo, COLOR_PAIR(2));
+
+  mvwprintw(winfo, 2, 8, "%15s", _gl_hero->name);
+  moneys m = *_gl_hero->moneys;
+  mvwprintw(winfo, 3, 10, "%6dc %4dg", m.coins, m.gems);
+
+  return winfo;
 }
 
 WINDOW* get_world_win(int place_x, int place_y, int scale, int (*get)(Place*), int mode) {
@@ -111,8 +146,8 @@ int world_scene() {
   WINDOW* world_win;
   WINDOW* world_info;
   WINDOW* place_info;
+  WINDOW* hero_info;
 
-  int place_x = _gl_x, place_y = _gl_y;
   int scale = 1;
 
   int curr_mode = 0;
@@ -152,14 +187,16 @@ int world_scene() {
     mvaddstr(LINES/2+17, COLS/2-21, "  q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move  m:menu  ");
     attroff(COLOR_PAIR(1) | A_BOLD);
 
-    world_win = get_world_win(place_x, place_y, scale, getters[curr_mode], worldmode);
+    world_win = get_world_win(_gl_x, _gl_y, scale, getters[curr_mode], worldmode);
     world_info = get_world_info();
-    place_info = get_place_info(place_x, place_y);
+    place_info = get_place_info(_gl_x, _gl_y);
+    hero_info = get_hero_info();
 
     refresh();
     wrefresh(world_win);
     wrefresh(world_info);
     wrefresh(place_info);
+    wrefresh(hero_info);
 
 
     int ch;
@@ -167,20 +204,16 @@ int world_scene() {
     switch (ch) {
 
       case KEY_UP:
-        place_y-=scale;
-        if(place_y < 0) place_y = 0;
+        if(is_world_move_able(0,-1)) _gl_y--;
         break;
       case KEY_DOWN:
-        place_y+=scale;
-        if(place_y >= _gl_world.y_size) place_y = _gl_world.y_size-1;
+        if(is_world_move_able(0,1)) _gl_y++;
         break;
       case KEY_RIGHT:
-        place_x+=scale;
-        if(place_x >= _gl_world.x_size) place_x = _gl_world.x_size-1;
+        if(is_world_move_able(1,0)) _gl_x++;
         break;
       case KEY_LEFT:
-        place_x-=scale;
-        if(place_x < 0) place_x = 0;
+        if(is_world_move_able(-1, 0)) _gl_x--;
         break;
 
       case KEY_F(HIGTH_MODE+1):
@@ -203,14 +236,10 @@ int world_scene() {
         break;
       
       case '\n':
-        switch (getType(getPlace(&_gl_world, place_x, place_y)))
+        switch (getType(getPlace(&_gl_world, _gl_x, _gl_y)))
         {
         case T_DANGEON:
-          
-          to_dange(place_x, place_y);
-          _gl_x=place_x;
-          _gl_y=place_y;
-
+          to_dange(_gl_x, _gl_y);
           return DANGEON;
           break;
         default:

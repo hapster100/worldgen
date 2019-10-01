@@ -19,7 +19,7 @@ void set_doors(level* l, vec beg) {
     vec wv = walls[i];
     if(!vec_in_area(wv, v(1, 1), v(l->heigth-2, l->width-2))) continue;
     if(count_level_area_xy(l, wv.x-1, wv.y-1, 3, 3, FLOOR) != 3) continue;
-    set_lvl_xy(l, wv.x, wv.y, 'D');
+    set_lvl_xy(l, wv.x, wv.y, DOOR);
   }
   free(walls);
 }

@@ -4,16 +4,17 @@
 #include <stdio.h>
 #include <malloc.h>
 
-#define EMPTY 'E'
-#define WALL '#'
-#define FLOOR 'F'
-#define DOOR 'D'
-#define TUBE '|'
-#define SMALL_TUBE '-'
-#define LARGE_TUBE '='
-#define HALLWAY 'H'
-#define WATER '~'
-#define BRIDGE 'B'
+#define EMPTY 101
+#define WALL 102
+#define FLOOR 103
+#define DOOR 104
+#define TUBE 105
+#define SMALL_TUBE 106
+#define LARGE_TUBE 107
+#define HALLWAY 108
+#define WATER 109
+#define BRIDGE 110
+#define START 111
 
 #define XY(l, x, y) (get_lvl_xy((l),(x),(y)))
 

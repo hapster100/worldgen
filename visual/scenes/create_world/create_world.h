@@ -11,7 +11,7 @@
 #include "../../../generators/world_generator.h"
 #include "../global_world.h"
 
-#define SIZES_NUM 5
+#define SIZES_NUM 3
 
 int create_world();
 

@@ -10,6 +10,9 @@
 
 void generateWorld(World* world);
 int get_seed(char* seedstr);
+
 level* get_dange(World* world, int x, int y);
+
+vec get_start_position(World* word);
 
 #endif

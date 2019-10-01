@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 #include <string.h>
+#include <math.h>
 
 #include "../global_world.h"
 #include "../scenes_code.h"

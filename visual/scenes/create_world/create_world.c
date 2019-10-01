@@ -12,8 +12,8 @@ int create_world() {
     name[i] = '\0';
   }
 
-  char* sizesstr[SIZES_NUM] = {"33x33","65x65","129x129","513x513","1025x1025"};
-  int sizes[SIZES_NUM] = {33,65,129,513,1025};
+  char* sizesstr[SIZES_NUM] = {"65x65","129x129","513x513"};
+  int sizes[SIZES_NUM] = {65,129,513};
   int curr_size = 0;
 
   int set_enter_x;
@@ -150,8 +150,13 @@ int create_world() {
             _gl_world.seed = get_seed(seed);
 
             generateWorld(&_gl_world);
-            _gl_x = _gl_world.x_size/2;
-            _gl_y = _gl_world.y_size/2;
+            vec start = get_start_position(&_gl_world);
+            _gl_x = start.x;
+            _gl_y = start.y;
+
+            ////////////
+            _gl_hero = create_hero("todohero");
+            ///////////
 
             free(name);
             free(seed);
