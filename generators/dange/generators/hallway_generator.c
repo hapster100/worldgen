@@ -189,13 +189,6 @@ void build_way(level* l, vec start, vec end) {
   int lh = l->heigth;
   int lw = l->width;
   
-  // ///////////////////////////////
-  // level* opl = copy_level(l);
-  // set_lvl_xy(opl, start.x, start.y, 'S');
-  // set_lvl_xy(opl, end.x, end.y, 'E');
-  // print_level(opl);
-  // getchar();
-  // /////////////////////////////
   int* costs = malloc(lh*lw*sizeof(int));
   for (int i = 0; i < lh*lw; i++)
   {

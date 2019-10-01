@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <malloc.h>
-#include "../vector.h"
+#include "../../../../structs/vector.h"
 
 typedef struct VEC_LIST {
   vec* val;

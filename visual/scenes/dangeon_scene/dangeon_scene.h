@@ -8,6 +8,7 @@
 #include "../global_world.h"
 #include "../scenes_code.h"
 #include "../../ncurses_tools/ncurses_tools.h"
+#include "../../../structs/vector.h"
 
 int dangeon_scene();
 

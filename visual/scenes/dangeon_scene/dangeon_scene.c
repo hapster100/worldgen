@@ -11,13 +11,14 @@ int ray_ok(level* l, float x1, float y1, float x2, float y2) {
 
   float v_abs = absv(v_x, v_y);
 
-  v_x /= v_abs;
-  v_y /= v_abs;
+  v_x /= v_abs*2;
+  v_y /= v_abs*2;
 
   float x = x1+v_x, y = y1+v_y;
 
-  while(absv(x-x1, y-y1)+0.5 < v_abs) {
-    if(get_lvl_xy(l, (int)x, (int)y) == WALL)
+  while(absv(x-x1, y-y1) < v_abs) {
+    if (!between((int)x, 0, _gl_dange->heigth-1) || !between((int)y, 0, _gl_dange->width-1)) return 1;
+    if (get_lvl_xy(l, (int)x, (int)y) == WALL)
       return 0;
     x += v_x*0.5;
     y += v_y*0.5;
@@ -107,15 +108,15 @@ void set_dange_colors() {
   init_pair(START, START, START+50);
 
   init_color(LARGE_TUBE, 500, 500, 500);
-  init_color(LARGE_TUBE+50, 200, 200, 200);
+  init_color(LARGE_TUBE+50, 100, 100, 100);
   init_pair(LARGE_TUBE, LARGE_TUBE, LARGE_TUBE+50);
   
   init_color(TUBE, 100, 200, 100);
-  init_color(TUBE+50, 200, 200, 200);
+  init_color(TUBE+50, 100, 100, 100);
   init_pair(TUBE, TUBE, TUBE+50);
 
   init_color(SMALL_TUBE, 200, 100, 100);
-  init_color(SMALL_TUBE+50, 300, 300, 300);
+  init_color(SMALL_TUBE+50, 100, 100, 100);
   init_pair(SMALL_TUBE, SMALL_TUBE, SMALL_TUBE+50);
 }
 
@@ -204,8 +205,6 @@ int dangeon_scene()
     
 
     WINDOW* dwin = get_dange_win(x, y);
-
-    mvprintw(10, 10, "x:%d y:%d", x, y);
     
     refresh();
     wrefresh(dwin);
