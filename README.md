@@ -1,4 +1,7 @@
+#World Generator
+##Build and Run
 
-Build: chmod +x build && ./build
+*Build: chmod +x build && ./build
 
-Run: ./wg
+*Run: ./wg
+
