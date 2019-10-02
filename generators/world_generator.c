@@ -42,18 +42,18 @@ level* get_dange(World* world, int x, int y)
 }
 
 vec get_start_position(World* world) {
-  vec start = {world->x_size, world->y_size};
+  vec start = {world->x_size/2, world->y_size/2};
   for (int r = 0;  ; r++) {
     for (int dx = -r; dx <= r; dx++)
     {
       int dy = r - abs(dx);
 
       Place* pl = getPlace(world, start.x + dx, start.y + dy);
-      if (pl->type == T_LAND && between(pl->higth, 5, 10) && between(pl->term, -5, 15))
+      if (pl->type == T_LAND && between(pl->higth, 0, 10) && between(pl->term, 5, 15))
         return v(start.x + dx, start.y + dy);
       
       pl = getPlace(world, start.x + dx, start.y - dy);
-      if (pl->type == T_LAND && between(pl->higth, 5, 10) && between(pl->term, -5, 15))
+      if (pl->type == T_LAND && between(pl->higth, 0, 10) && between(pl->term, 5, 15))
         return v(start.x + dx, start.y - dy);
     }
     

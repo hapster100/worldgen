@@ -1,59 +1,60 @@
 #include "./dangeon_scene.h"
 
-int absv(int x, int y) {
-  return sqrtf(x*x + y*y);
+const float PI_10 = 3.1415926535;
+
+vecfl rotate(vecfl beg, float ang) {
+  
+  ang = ang * PI_10 / 180;
+  
+  float rot_x = beg.x * cosf(ang) - beg.y * sinf(ang);
+  float rot_y = beg.x * sinf(ang) + beg.y * cosf(ang);
+
+  return vfl(rot_x, rot_y);
 }
 
-int ray_ok(level* l, float x1, float y1, float x2, float y2) {
+vlist* get_views_from(level* l, vec from, int rad) {
 
-  float v_x = x2 - x1;
-  float v_y = y2 - y1;
+  vlist* views = create_vlist();
 
-  float v_abs = absv(v_x, v_y);
-
-  v_x /= v_abs*2;
-  v_y /= v_abs*2;
-
-  float x = x1+v_x, y = y1+v_y;
-
-  while(absv(x-x1, y-y1) < v_abs) {
-    if (!between((int)x, 0, _gl_dange->heigth-1) || !between((int)y, 0, _gl_dange->width-1)) return 1;
-    if (get_lvl_xy(l, (int)x, (int)y) == WALL)
-      return 0;
-    x += v_x;
-    y += v_y;
-  }
-  return 1;
+  vecfl center = vfl(from.x + 0.5, from.y + 0.5);
+  float d_ang = 10.0 / rad;
   
-}
+  vecfl e = vfl(0, 1);
 
-int view_block_from(level* l, int x_from, int y_from, int x, int y, int rad) {
-  
-  if((x-x_from)*(x-x_from) + (y-y_from)*(y - y_from) > rad*rad) return 0;
-  
-  float x_eay = x_from + 0.5;
-  float y_eay = y_from + 0.5;
-
-  float x_look = x + 0.5;
-  float y_look = y + 0.5;
-
-  int full_ray = 0;
-
-  for (int i = -1; i < 2; i++)
+  for (int i = 0; i < 360/d_ang; i++)
   {
-    for (int j = -1; j < 2; j++)
+    vecfl ray = vfl(e.x,e.y);
+
+    while (absvfl(ray) < rad)
     {
-      if(ray_ok(l, x_eay, y_eay, x_look + i*0.5, y_look +j*0.5)) full_ray++;
+      int x = (int)(center.x + ray.x);
+      int y = (int)(center.y + ray.y);
+      
+      if(!vec_in_area(v(x, y), v(0, 0), v(l->heigth-1, l->width-1)))
+        break;
+      
+      int item = get_lvl_xy(l,x,y);
+      int is_in = vl_has(views, v(x, y));
+
+      if(item == WALL)
+      {
+        if(!is_in) 
+          vl_push(views, x, y);
+        break;
+      }
+
+      if(!is_in) 
+        vl_push(views, x, y);
+
+
+      ray.x += e.x*0.5;
+      ray.y += e.y*0.5;
     }
-    
+  
+    e = rotate(e, d_ang);
   }
   
-  
-  if(full_ray > 0)
-    return 1;
-  else
-    return 0;
-
+  return views;
 }
 
 int is_move_able(int x, int y) {
@@ -120,6 +121,8 @@ void set_dange_colors() {
   init_pair(SMALL_TUBE, SMALL_TUBE, SMALL_TUBE+50);
 }
 
+#define VIEW_RAD 10
+
 WINDOW* get_dange_win(int x_pos, int y_pos) 
 {
   int h = _gl_dange->heigth;
@@ -127,58 +130,109 @@ WINDOW* get_dange_win(int x_pos, int y_pos)
 
   WINDOW* dwin = newwin(h, w*2, LINES/2 - h/2, COLS/2 - w);
 
-    for (int i = 0; i < h; i++)
+  int item = get_lvl_xy(_gl_dange, x_pos, y_pos);
+  wattrset(dwin, COLOR_PAIR(item));
+  mvwprintw(dwin, h - x_pos - 1, 2*y_pos, "\u25a3 ");
+  wattroff(dwin, COLOR_PAIR(item));
+
+  vlist* views = get_views_from(_gl_dange, v(x_pos, y_pos), VIEW_RAD);
+
+  while(views->val) 
+  {
+    vec v = *views->val;
+    int item = get_lvl_xy(_gl_dange, v.x, v.y);
+
+    switch (item)
     {
-      for (int j = 0; j < w; j++)
-      {
-        char item = get_lvl_xy(_gl_dange, i, j);
-        if(x_pos == i && y_pos == j) 
-        {
-          wattrset(dwin, COLOR_PAIR(item));
-          mvwprintw(dwin, h - i - 1, 2*j, "\u25a3 ");
-          wattroff(dwin, COLOR_PAIR(item));
-          continue;
-        }
-        if(!view_block_from(_gl_dange, x_pos, y_pos, i, j, 15)) {
-          mvwprintw(dwin,h - i - 1, 2*j, "  ");
-          continue;
-        }
-        switch (item)
-        {
-        case WATER:
-          wattrset(dwin, COLOR_PAIR(WATER));
-          mvwprintw(dwin,h - i - 1, 2*j, "~~");
-          wattroff(dwin, COLOR_PAIR(WATER));
-          break;
+    case WATER:
+      wattrset(dwin, COLOR_PAIR(WATER));
+      mvwprintw(dwin,h - v.x - 1, 2*v.y, "~~");
+      wattroff(dwin, COLOR_PAIR(WATER));
+      break;
 
-        case WALL:
+    case WALL:
 
-        case DOOR:
+    case DOOR:
 
-        case HALLWAY:
+    case HALLWAY:
 
-        case BRIDGE:
+    case BRIDGE:
 
-        case FLOOR:
+    case FLOOR:
 
-        case START:
+    case START:
 
-        case TUBE:
+    case TUBE:
 
-        case SMALL_TUBE:
+    case SMALL_TUBE:
 
-        case LARGE_TUBE:
-          wattrset(dwin, COLOR_PAIR(item));
-          mvwprintw(dwin,h- i - 1, 2*j, "  ");
-          wattroff(dwin, COLOR_PAIR(item));
-          break;
-          
-        default:
-          mvwprintw(dwin,h - i - 1, 2*j, "  ");
-          break;
-        }
-      }
+    case LARGE_TUBE:
+      wattrset(dwin, COLOR_PAIR(item));
+      mvwprintw(dwin,h- v.x - 1, 2*v.y, "  ");
+      wattroff(dwin, COLOR_PAIR(item));
+      break;
+      
+    default:
+      mvwprintw(dwin,h - v.x - 1, 2*v.y, "  ");
+      break;
     }
+    vl_del(views, v, NULL);
+  }
+
+  vl_free(views);
+
+    // for (int i = 0; i < h; i++)
+    // {
+    //   for (int j = 0; j < w; j++)
+    //   {
+    //     char item = get_lvl_xy(_gl_dange, i, j);
+    //     if(x_pos == i && y_pos == j) 
+    //     {
+    //       wattrset(dwin, COLOR_PAIR(item));
+    //       mvwprintw(dwin, h - i - 1, 2*j, "\u25a3 ");
+    //       wattroff(dwin, COLOR_PAIR(item));
+    //       continue;
+    //     }
+    //     if(!view_block_from(_gl_dange, x_pos, y_pos, i, j, VIEW_RAD)) {
+    //       mvwprintw(dwin,h - i - 1, 2*j, "  ");
+    //       continue;
+    //     }
+    //     switch (item)
+    //     {
+    //     case WATER:
+    //       wattrset(dwin, COLOR_PAIR(WATER));
+    //       mvwprintw(dwin,h - i - 1, 2*j, "~~");
+    //       wattroff(dwin, COLOR_PAIR(WATER));
+    //       break;
+
+    //     case WALL:
+
+    //     case DOOR:
+
+    //     case HALLWAY:
+
+    //     case BRIDGE:
+
+    //     case FLOOR:
+
+    //     case START:
+
+    //     case TUBE:
+
+    //     case SMALL_TUBE:
+
+    //     case LARGE_TUBE:
+    //       wattrset(dwin, COLOR_PAIR(item));
+    //       mvwprintw(dwin,h- i - 1, 2*j, "  ");
+    //       wattroff(dwin, COLOR_PAIR(item));
+    //       break;
+          
+    //     default:
+    //       mvwprintw(dwin,h - i - 1, 2*j, "  ");
+    //       break;
+    //     }
+    //   }
+    // }
 
     return dwin;
 }

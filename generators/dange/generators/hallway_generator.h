@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "../vector_libs/vgraph/vectors_graph.h"
+#include "../../../structs/vector_libs/vgraph/vectors_graph.h"
 #include "../level_libs/room_level_tools.h"
 
 void generate_hallways(level* l);

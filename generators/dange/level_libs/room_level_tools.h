@@ -2,7 +2,7 @@
 #define _ROOM_TOOLS_LIB_
 
 #include "../../../structs/level.h"
-#include "../vector_libs/vgraph/vectors_graph.h"
+#include "../../../structs/vector_libs/vgraph/vectors_graph.h"
 
 vec find_room_begin(level* l, vec v);
 vec find_room_end(level* l, vec begin);

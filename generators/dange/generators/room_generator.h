@@ -1,7 +1,7 @@
 #ifndef _ROOM_GENERATOR_
 #define _ROOM_GENERATOR_
 
-#include "../vector_libs/vgraph/vectors_graph.h"
+#include "../../../structs/vector_libs/vgraph/vectors_graph.h"
 #include "../level_libs/room_level_tools.h"
 #include <stdlib.h>
 

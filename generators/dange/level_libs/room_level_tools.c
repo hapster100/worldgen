@@ -29,11 +29,6 @@ vec find_room_end(level* l, vec begin) {
   return end;
 }
 
-vec v(int x, int y) {
-  vec v = {x: x, y: y};
-  return v;
-}
-
 vlist* find_all_room_begin(level* l) {
   
   vlist* vl = create_vlist();

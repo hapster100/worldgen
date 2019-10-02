@@ -11,6 +11,6 @@ hero* create_hero(char* name) {
   hero* h = malloc(sizeof(hero));
   h->name = malloc(20);
   h->name = name;
-  h->moneys = cheast(10000,1000);
+  h->moneys = cheast(10,0);
   return h;
 }
