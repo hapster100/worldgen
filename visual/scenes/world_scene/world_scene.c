@@ -185,6 +185,7 @@ int world_scene() {
     attrset(COLOR_PAIR(1) | A_BOLD);
     mvprintw(LINES/2 -17, COLS/2 + 27, " 1:%2d ", scale);
     mvaddstr(LINES/2+17, COLS/2-21, "  q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move  m:menu  ");
+    if(getPlace(&_gl_world, _gl_x, _gl_y)->type == T_DANGEON) mvaddstr(LINES/2+18, COLS/2 - 8, "ENTER: to dangeon");
     attroff(COLOR_PAIR(1) | A_BOLD);
 
     world_win = get_world_win(_gl_x, _gl_y, scale, getters[curr_mode], worldmode);

@@ -20,8 +20,8 @@ int ray_ok(level* l, float x1, float y1, float x2, float y2) {
     if (!between((int)x, 0, _gl_dange->heigth-1) || !between((int)y, 0, _gl_dange->width-1)) return 1;
     if (get_lvl_xy(l, (int)x, (int)y) == WALL)
       return 0;
-    x += v_x*0.5;
-    y += v_y*0.5;
+    x += v_x;
+    y += v_y;
   }
   return 1;
   
@@ -108,15 +108,15 @@ void set_dange_colors() {
   init_pair(START, START, START+50);
 
   init_color(LARGE_TUBE, 500, 500, 500);
-  init_color(LARGE_TUBE+50, 100, 100, 100);
+  init_color(LARGE_TUBE+50, 150, 150, 150);
   init_pair(LARGE_TUBE, LARGE_TUBE, LARGE_TUBE+50);
   
   init_color(TUBE, 100, 200, 100);
-  init_color(TUBE+50, 100, 100, 100);
+  init_color(TUBE+50, 150, 150, 150);
   init_pair(TUBE, TUBE, TUBE+50);
 
   init_color(SMALL_TUBE, 200, 100, 100);
-  init_color(SMALL_TUBE+50, 100, 100, 100);
+  init_color(SMALL_TUBE+50, 150, 150, 150);
   init_pair(SMALL_TUBE, SMALL_TUBE, SMALL_TUBE+50);
 }
 
@@ -189,11 +189,14 @@ int dangeon_scene()
   set_dange_colors();
   int x = 0, y = 0;
 
-  for (int i = 0; i < _gl_dange->heigth * _gl_dange->width; i++)
+  int h = _gl_dange->heigth;
+  int w = _gl_dange->width;
+
+  for (int i = 0; i < h * w; i++)
   {
     if (_gl_dange->map[i] == START) {
-      x = _gl_dange->heigth - i/_gl_dange->width - 1;
-      y = i%_gl_dange->width;
+      x = h - i/w - 1;
+      y = i % w;
     }
   }
   
@@ -201,11 +204,18 @@ int dangeon_scene()
   do
   {
     clearscreen();
-
-    
-
     WINDOW* dwin = get_dange_win(x, y);
     
+    if(get_lvl_xy(_gl_dange, x, y) == START) {
+      attrset(COLOR_PAIR(1));
+      mvaddstr(LINES/2 + h/2 + 2, COLS/2 - 11, " ENTER: back to world ");
+      attroff(COLOR_PAIR(1));
+    }
+
+    attrset(COLOR_PAIR(1));
+    mvaddstr(LINES/2 + h/2 + 1, COLS/2 - 13, " q:exit \u2190\u2191\u2193\u2192 :move  m:menu ");
+    attroff(COLOR_PAIR(1));
+
     refresh();
     wrefresh(dwin);
 
@@ -231,6 +241,9 @@ int dangeon_scene()
     case '\n':
       if(get_lvl_xy(_gl_dange, x, y) == START)
         return WORLD;
+      break;
+    case 'm':
+      return MINE_MENU;
       break;
     case 'q':
       return EXIT;
