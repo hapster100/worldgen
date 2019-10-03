@@ -1,17 +1,5 @@
 #include "./dangeon_scene.h"
 
-const float PI_10 = 3.1415926535;
-
-vecfl rotate(vecfl beg, float ang) {
-  
-  ang = ang * PI_10 / 180;
-  
-  float rot_x = beg.x * cosf(ang) - beg.y * sinf(ang);
-  float rot_y = beg.x * sinf(ang) + beg.y * cosf(ang);
-
-  return vfl(rot_x, rot_y);
-}
-
 vlist* get_views_from(level* l, vec from, int rad) {
 
   vlist* views = create_vlist();
@@ -57,28 +45,6 @@ vlist* get_views_from(level* l, vec from, int rad) {
   return views;
 }
 
-int is_move_able(ggstate* ggs, int x, int y) {
-  int ret = 1;
-  switch (get_lvl_xy(ggs_dange(ggs), x, y))
-  {
-  case WALL:
-  case LARGE_TUBE:
-  case SMALL_TUBE:
-  case TUBE:
-  case WATER:
-  case EMPTY:
-    ret = 0;
-    break;
-  case DOOR:
-  case HALLWAY:
-  case BRIDGE:
-  case FLOOR:
-  case START:
-    break;
-  }
-  return ret;
-}
-
 void set_dange_colors() {
   init_color(WATER, 400, 400, 600);
   init_color(WATER+50, 100, 100, 400);
@@ -121,7 +87,7 @@ void set_dange_colors() {
   init_pair(SMALL_TUBE, SMALL_TUBE, SMALL_TUBE+50);
 }
 
-#define VIEW_RAD 10
+#define VIEW_RAD 5
 
 WINDOW* get_dange_win(ggstate* ggs) 
 {
@@ -131,12 +97,12 @@ WINDOW* get_dange_win(ggstate* ggs)
 
   WINDOW* dwin = newwin(h, w*2, LINES/2 - h/2, COLS/2 - w);
 
-  int item = get_lvl_xy(dange, ggs->x_d, ggs->y_d);
+  int item = get_lvl_xy(dange, ggs->d_x, ggs->d_y);
   wattrset(dwin, COLOR_PAIR(item));
-  mvwprintw(dwin, h - ggs->x_d - 1, 2*ggs->y_d, "\u25a3 ");
+  mvwprintw(dwin, h - ggs->d_x - 1, 2*ggs->d_y, "\u25a3 ");
   wattroff(dwin, COLOR_PAIR(item));
 
-  vlist* views = get_views_from(dange, v(ggs->x_d, ggs->y_d), VIEW_RAD);
+  vlist* views = get_views_from(dange, v(ggs->d_x, ggs->d_y), VIEW_RAD);
 
   while(views->val) 
   {
@@ -191,25 +157,15 @@ int dangeon_scene(ggstate* ggs)
   set_dange_colors();
 
   level* dange = ggs_dange(ggs);
-
   int h = dange->heigth;
   int w = dange->width;
-
-  for (int i = 0; i < h * w; i++)
-  {
-    if (dange->map[i] == START) {
-      ggs->x_d = h - i/w - 1;
-      ggs->y_d = i % w;
-    }
-  }
-  
   
   do
   {
     clearscreen();
     WINDOW* dwin = get_dange_win(ggs);
     
-    if(get_lvl_xy(dange, ggs->x_d, ggs->y_d) == START) {
+    if(get_lvl_xy(dange, ggs->d_x, ggs->d_y) == START) {
       attrset(COLOR_PAIR(1));
       mvaddstr(LINES/2 + h/2 + 2, COLS/2 - 11, " ENTER: back to world ");
       attroff(COLOR_PAIR(1));
@@ -225,24 +181,21 @@ int dangeon_scene(ggstate* ggs)
     switch (getch())
     {
     case KEY_UP:
-      if (is_move_able(ggs, ggs->x_d+1, ggs->y_d))
-        ggs->x_d++;
+      d_move_to(ggs, ggs->d_x+1, ggs->d_y);
       break;
     case KEY_DOWN:
-      if (is_move_able(ggs, ggs->x_d-1, ggs->y_d))
-        ggs->x_d--;
+      d_move_to(ggs, ggs->d_x-1, ggs->d_y);
       break;
     case KEY_LEFT:
-      if (is_move_able(ggs, ggs->x_d, ggs->y_d-1))
-        ggs->y_d--;
+      d_move_to(ggs, ggs->d_x, ggs->d_y-1);
       break;
     case KEY_RIGHT:
-      if (is_move_able(ggs, ggs->x_d, ggs->y_d+1))
-        ggs->y_d++;
+      d_move_to(ggs, ggs->d_x, ggs->d_y+1);
       break;
     
     case '\n':
-      if(get_lvl_xy(dange, ggs->x_d, ggs->y_d) == START)
+      if(get_lvl_xy(dange, ggs->d_x, ggs->d_y) == START)
+        to_world(ggs);
         return WORLD;
       break;
     case 'm':

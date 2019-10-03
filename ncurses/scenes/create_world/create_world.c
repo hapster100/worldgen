@@ -144,15 +144,9 @@ int create_world(ggstate* ggs) {
           if(curr_param >= 0 && curr_param < 3) {
             change_param = true;
           }
-          if(curr_param==3) {
-            ggs->w = world_init(sizes[curr_size], sizes[curr_size]);
-            strcpy(ggs->w->name, name);
-            ggs->seed = get_seed(seed);
-
-            generateworld(ggs->w, ggs->seed);
-            vec start = get_start_position(ggs->w);
-            ggs->x_w = start.x;
-            ggs->y_w = start.y;
+          if(curr_param == 3) {
+            
+            ggs_generate_world(ggs, name, seed, sizes[curr_size]);
 
             free(name);
             free(seed);

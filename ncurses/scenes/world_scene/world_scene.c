@@ -6,23 +6,6 @@ void forget_color() {
   }
 }
 
-void to_dange(ggstate* ggs) {
-  generate_dange(ggs->w, ggs->x_w, ggs->y_w, ggs->seed);
-}
-
-int is_world_move_able(ggstate* ggs, int dx, int dy) {
-  
-  int x_to = ggs->x_w + dx;
-  int y_to = ggs->y_w + dy;
-  
-  if (!vec_in_area(v(x_to, y_to), v(0,0), v(ggs->w->x_size-1, ggs->w->y_size-1))) 
-    return 0;
-  else if (get_type(get_place(ggs->w, x_to, y_to)) == T_WATER) 
-    return 0;
-  else
-    return 1; 
-}
-
 WINDOW* get_world_info(ggstate* ggs) {
   int x_size = 25;
   int y_size = 5;
@@ -45,7 +28,7 @@ WINDOW* get_place_info(ggstate* ggs) {
   int x_size = 25;
   int y_size = 7;
   WINDOW* pwin = newwin(y_size, x_size, LINES/2 - 33/2, COLS/2+66/2);
-  place* pl = get_place(ggs->w, ggs->x_w, ggs->y_d);
+  place* pl = get_place(ggs->w, ggs->w_x, ggs->w_y);
   box(pwin,0,0);
 
   wattrset(pwin, COLOR_PAIR(2));
@@ -56,8 +39,8 @@ WINDOW* get_place_info(ggstate* ggs) {
   mvwaddstr(pwin, 5, 2, "type:");
   wattroff(pwin, COLOR_PAIR(2));
 
-  mvwprintw(pwin, 2, 5, "%4d", ggs->x_w);
-  mvwprintw(pwin, 2, 14, "%4d", ggs->y_w);
+  mvwprintw(pwin, 2, 5, "%4d", ggs->w_x);
+  mvwprintw(pwin, 2, 14, "%4d", ggs->w_y);
   mvwprintw(pwin, 3, 9, "%6d", get_higth(pl));
   mvwprintw(pwin, 4, 9, "%6d", get_term(pl));
   mvwprintw(pwin, 5, 8, place_type_str[get_type(pl)]);
@@ -71,8 +54,8 @@ WINDOW* get_world_win(ggstate* ggs, int scale, int (*get)(place*), int mode) {
   int y_size = 33;
   WINDOW* wwin = newwin(y_size, x_size, LINES/2 - y_size/2, COLS/2 - x_size/2);
 
-  int x0 = (ggs->x_w - 15*scale)/scale*scale;
-  int y0 = (ggs->y_w - 15*scale)/scale*scale;
+  int x0 = (ggs->w_x - 15*scale)/scale*scale;
+  int y0 = (ggs->w_y - 15*scale)/scale*scale;
 
   if(x0 < 0) x0 = 0;
   if(y0 < 0) y0 = 0;
@@ -99,10 +82,10 @@ WINDOW* get_world_win(ggstate* ggs, int scale, int (*get)(place*), int mode) {
         to_print_l = "\u2186";
         to_print_r = "\u2186";  
       }
-      if (ggs->y_w >= y0+y*scale &&
-         ggs->y_w < y0 + y*scale + scale &&
-         ggs->x_w >= x0+x*scale &&
-         ggs->x_w < x0 + x*scale + scale) 
+      if (ggs->w_y >= y0+y*scale &&
+         ggs->w_y < y0 + y*scale + scale &&
+         ggs->w_x >= x0+x*scale &&
+         ggs->w_x < x0 + x*scale + scale) 
       {
         to_print_l = "\u25a3";
         to_print_r = " ";
@@ -181,16 +164,16 @@ int world_scene(ggstate* ggs) {
     switch (ch) {
 
       case KEY_UP:
-        if(is_world_move_able(ggs, 0,-1)) ggs->y_w--;
+        w_move_to (ggs, ggs->w_x, ggs->w_y - 1);
         break;
       case KEY_DOWN:
-        if(is_world_move_able(ggs, 0,1)) ggs->y_w++;
+        w_move_to(ggs, ggs->w_x, ggs->w_y + 1);
         break;
       case KEY_RIGHT:
-        if(is_world_move_able(ggs, 1,0)) ggs->x_w++;
+        w_move_to(ggs, ggs->w_x + 1, ggs->w_y);
         break;
       case KEY_LEFT:
-        if(is_world_move_able(ggs, -1, 0)) ggs->x_w--;
+        w_move_to(ggs, ggs->w_x - 1, ggs->w_y);
         break;
 
       case KEY_F(HIGTH_MODE+1):
@@ -216,7 +199,7 @@ int world_scene(ggstate* ggs) {
         switch (get_type(ggs_world_place(ggs)))
         {
         case T_DANGEON:
-          to_dange(ggs);
+          to_dangeon(ggs);
           return DANGEON;
           break;
         default:
