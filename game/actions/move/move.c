@@ -29,20 +29,32 @@ int d_legel_move(int type)
   return ret;
 }
 
-void w_move_to(ggstate* ggs, int x_to, int y_to) 
+char* w_move_to(void** args) 
 {
+
+  ggstate* ggs = *(ggstate**)args[0];
+  int x_to = *(int*)args[1];
+  int y_to = *(int*)args[2];
+
   if(vec_in_area(v(x_to, y_to), v(0, 0), v(ggs->w->x_size - 1, ggs->w->y_size -1)))
   {
     if(w_legal_move(get_type(get_place(ggs->w, x_to, y_to))))
     {
+      
       ggs->w_x = x_to;
       ggs->w_y = y_to;
     }
   }
+
+  return "MOVE WORLD";
 }
 
-void d_move_to(ggstate* ggs, int x_to, int y_to)
+char* d_move_to(void** args)
 {
+  ggstate* ggs = *(ggstate**)args[0];
+  int x_to = *(int*)args[1];
+  int y_to = *(int*)args[2];
+
   level* dange = ggs_dange(ggs);
   if(vec_in_area(v(x_to, y_to), v(0, 0), v(dange->heigth - 1, dange->width - 1)))
   {
@@ -52,9 +64,10 @@ void d_move_to(ggstate* ggs, int x_to, int y_to)
       ggs->d_y = y_to;
     }
   }
+  return "MOVE DANGE";
 }
 
-void to_dangeon(ggstate* ggs) 
+char* to_dangeon(ggstate* ggs) 
 {
   generate_dange(ggs->w, ggs->w_x, ggs->w_y, ggs->seed);
   
@@ -69,11 +82,13 @@ void to_dangeon(ggstate* ggs)
       ggs->d_y = i % w;
     }
   }
-
   ggs->location = LT_DANGE;
+
+  return "TO DANGE";
 }
 
-void to_world(ggstate* ggs)
+char* to_world(ggstate* ggs)
 {
   ggs->location = LT_WORLD;
+  return "TO WORLD";
 }

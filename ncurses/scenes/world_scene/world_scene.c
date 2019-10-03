@@ -164,16 +164,20 @@ int world_scene(ggstate* ggs) {
     switch (ch) {
 
       case KEY_UP:
-        w_move_to (ggs, ggs->w_x, ggs->w_y - 1);
+        ggs_add_action(ggs, MOVE_WORLD, ggs->w_x, ggs->w_y - 1);
+        ggs_resolve_actions(ggs);
         break;
       case KEY_DOWN:
-        w_move_to(ggs, ggs->w_x, ggs->w_y + 1);
+        ggs_add_action(ggs, MOVE_WORLD, ggs->w_x, ggs->w_y + 1);
+        ggs_resolve_actions(ggs);
         break;
       case KEY_RIGHT:
-        w_move_to(ggs, ggs->w_x + 1, ggs->w_y);
+        ggs_add_action(ggs, MOVE_WORLD, ggs->w_x + 1, ggs->w_y);
+        ggs_resolve_actions(ggs);
         break;
       case KEY_LEFT:
-        w_move_to(ggs, ggs->w_x - 1, ggs->w_y);
+        ggs_add_action(ggs, MOVE_WORLD, ggs->w_x - 1, ggs->w_y);
+        ggs_resolve_actions(ggs);
         break;
 
       case KEY_F(HIGTH_MODE+1):

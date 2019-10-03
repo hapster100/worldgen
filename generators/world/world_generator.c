@@ -1,6 +1,6 @@
 #include "world_generator.h"
 
-void generateworld(world* world, int seed) {
+void generate_world(world* world, int seed) {
   srand(seed);
   land_generator(world);
   term_generator(world);

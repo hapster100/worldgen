@@ -181,16 +181,20 @@ int dangeon_scene(ggstate* ggs)
     switch (getch())
     {
     case KEY_UP:
-      d_move_to(ggs, ggs->d_x+1, ggs->d_y);
+      ggs_add_action(ggs, MOVE_DANGE, ggs->d_x+1, ggs->d_y);
+      ggs_resolve_actions(ggs);
       break;
     case KEY_DOWN:
-      d_move_to(ggs, ggs->d_x-1, ggs->d_y);
+      ggs_add_action(ggs, MOVE_DANGE, ggs->d_x-1, ggs->d_y);
+      ggs_resolve_actions(ggs);
       break;
     case KEY_LEFT:
-      d_move_to(ggs, ggs->d_x, ggs->d_y-1);
+      ggs_add_action(ggs, MOVE_DANGE, ggs->d_x, ggs->d_y-1);
+      ggs_resolve_actions(ggs);
       break;
     case KEY_RIGHT:
-      d_move_to(ggs, ggs->d_x, ggs->d_y+1);
+      ggs_add_action(ggs, MOVE_DANGE, ggs->d_x, ggs->d_y+1);
+      ggs_resolve_actions(ggs);
       break;
     
     case '\n':

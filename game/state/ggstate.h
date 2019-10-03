@@ -3,6 +3,7 @@
 
 #include "../../structs/structs.h"
 #include "../../generators/generators.h"
+#include "../actions/action_stack.h"
 
 #define LT_WORLD 0;
 #define LT_DANGE 1;
@@ -19,6 +20,8 @@ typedef struct GLOBAL_GAME_STATE
   
   int d_x;
   int d_y;
+
+  action_stack* act_stack;
 
 } ggstate;
 

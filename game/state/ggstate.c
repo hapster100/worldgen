@@ -3,6 +3,7 @@
 ggstate* ggs_init() 
 {
   ggstate* ggs = malloc(sizeof(ggstate));
+  ggs->act_stack = acts_init();
   ggs->seed = 0;
   ggs->w = NULL;
 }
@@ -11,6 +12,7 @@ void* ggs_free(ggstate* ggs)
 {
   if(ggs->w) 
     world_free(ggs->w);
+  acts_free(ggs->act_stack);
   free(ggs);
 }
 
@@ -41,7 +43,7 @@ void ggs_generate_world(ggstate* ggs, char* name, char* seed, int size)
   strcpy(ggs->w->name, name);
   ggs->seed = get_seed(seed);
 
-  generateworld(ggs->w, ggs->seed);
+  generate_world(ggs->w, ggs->seed);
   vec start = get_start_position(ggs->w);
   ggs->w_x = start.x;
   ggs->w_y = start.y;

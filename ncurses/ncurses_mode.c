@@ -31,6 +31,5 @@ void ncurses_mode() {
     current_scene = (scenes[current_scene])(ggs);
   }
   endwin();
-
   ggs_free(ggs);
 }
