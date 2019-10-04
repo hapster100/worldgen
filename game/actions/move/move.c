@@ -5,7 +5,7 @@ int w_legal_move(int type)
   return type != T_WATER;
 }
 
-int d_legel_move(int type)
+int d_legel_type(int type)
 {
   int ret = 0;
   switch (type)
@@ -58,10 +58,13 @@ char* d_move_to(void** args)
   level* dange = ggs_dange(ggs);
   if(vec_in_area(v(x_to, y_to), v(0, 0), v(dange->heigth - 1, dange->width - 1)))
   {
-    if(d_legel_move(get_lvl_xy(dange, x_to, y_to)))
+    if(d_legel_type(get_lvl_xy(dange, x_to, y_to)))
     {
-      ggs->d_x = x_to;
-      ggs->d_y = y_to;
+      if(!de_has(ggs_enemys(ggs), v(x_to, y_to)))
+      {
+        ggs->d_x = x_to;
+        ggs->d_y = y_to;
+      }
     }
   }
   return "MOVE DANGE";

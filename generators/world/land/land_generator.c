@@ -45,7 +45,7 @@ void normalize_higth(world* w) {
   for (int i = 0; i < w->x_size; i++) {
     for (int j = 0; j < w->y_size; j++) {
       place* targ = get_place(w, i, j);
-      if(targ->higth<waterline) {
+      if(targ->higth < waterline) {
         targ->higth=((targ->higth - waterline)*MIN_HIGTH)/(min - waterline);
         targ->type=T_WATER;
       } else {
@@ -57,7 +57,7 @@ void normalize_higth(world* w) {
 }
 
 int getGenerateHigth(int sum, int dx) {
-  return (int)((float)sum/4 + rand()%(dx + 1)*GEN_PARAM - dx*GEN_PARAM/2.0 );
+  return (int)((float)sum/4.0 + rand()%(dx + 1)*GEN_PARAM - dx*GEN_PARAM/2.0 );
 }
 
 void square_step(world* w, int x0, int y0, int dx, int dy) {

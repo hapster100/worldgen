@@ -171,7 +171,7 @@ enemy* generate_enemy(int diff)
 
   en->st->equip = equip;
 
-  en->st->lvl = diff/2 + rand()%5;
+  en->st->lvl = diff*(int)sqrt((double)diff/2.0)/10 + rand()%10 + 1;
   en->st->HP = max_hp(en->st);
   
   return en;

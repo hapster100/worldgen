@@ -15,4 +15,6 @@ stats* stats_init();
 void stats_free(stats* st);
 int max_hp(stats* st);
 
+attributes full_attr(stats* st);
+
 #endif

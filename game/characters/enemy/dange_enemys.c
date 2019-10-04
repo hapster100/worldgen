@@ -2,10 +2,11 @@
 
 denemy* de_init()
 {
-  denemy* de = malloc(sizeof(de));
+  denemy* de = malloc(sizeof(denemy));
   de->en = NULL;
   de->pos = NULL;
   de->next = NULL;
+  de->way = create_vlist();
   return de;
 }
 
@@ -28,7 +29,7 @@ void de_push(denemy** de, vec* v, enemy* en)
 {
   if((*de)->pos)
   {
-    denemy* new_de = malloc(sizeof(denemy));
+    denemy* new_de = de_init();
     new_de->en = en;
     new_de->pos = v;
     new_de->next = *de;

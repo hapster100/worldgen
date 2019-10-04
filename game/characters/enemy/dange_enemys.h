@@ -1,7 +1,7 @@
 #ifndef _DANGE_ENEMYS_
 #define _DANGE_ENEMYS_
 
-#include "../../../structs/vector/vector.h"
+#include "../../../structs/vlist/vectors_list.h"
 #include "enemy.h"
 
 typedef struct DANGE_ENEMY
@@ -9,6 +9,7 @@ typedef struct DANGE_ENEMY
   struct DANGE_ENEMY* next;
   vec* pos;
   enemy* en;
+  vlist* way;
 } denemy;
 
 denemy* de_init();
