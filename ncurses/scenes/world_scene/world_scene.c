@@ -79,8 +79,8 @@ WINDOW* get_world_win(ggstate* ggs, int scale, int (*get)(place*), int mode) {
       char* to_print_r = " ";
 
       if (mode == DANG_MODE && higth == T_DANGEON) {
-        to_print_l = "\u2186";
-        to_print_r = "\u2186";  
+        to_print_l = "\u2617";  
+        to_print_r = " ";
       }
       if (ggs->w_y >= y0+y*scale &&
          ggs->w_y < y0 + y*scale + scale &&
@@ -203,7 +203,8 @@ int world_scene(ggstate* ggs) {
         switch (get_type(ggs_world_place(ggs)))
         {
         case T_DANGEON:
-          to_dangeon(ggs);
+          ggs_add_action(ggs, TO_DANGE);
+          ggs_resolve_actions(ggs);
           return DANGEON;
           break;
         default:

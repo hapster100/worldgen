@@ -67,10 +67,11 @@ char* d_move_to(void** args)
   return "MOVE DANGE";
 }
 
-char* to_dangeon(ggstate* ggs) 
+char* to_dangeon(void** args) 
 {
-  generate_dange(ggs->w, ggs->w_x, ggs->w_y, ggs->seed);
+  ggstate* ggs = *(ggstate**)args[0];
   
+  generate_dange(ggs->w, ggs->w_x, ggs->w_y, ggs->seed);
   level* dange = ggs_dange(ggs);
   int h = dange->heigth;
   int w = dange->width;
@@ -82,13 +83,15 @@ char* to_dangeon(ggstate* ggs)
       ggs->d_y = i % w;
     }
   }
+
   ggs->location = LT_DANGE;
 
   return "TO DANGE";
 }
 
-char* to_world(ggstate* ggs)
+char* to_world(void** args)
 {
+  ggstate* ggs = *(ggstate**)args[0];
   ggs->location = LT_WORLD;
   return "TO WORLD";
 }

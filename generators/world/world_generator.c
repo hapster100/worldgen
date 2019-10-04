@@ -4,9 +4,9 @@ void generate_world(world* world, int seed) {
   srand(seed);
   land_generator(world);
   term_generator(world);
-  for (int i = 4; i < world->x_size; i+=3)
+  for (int i = 4; i < world->x_size; i+=4)
   {
-    for (int j = 4; j < world->y_size; j+=3)
+    for (int j = 4; j < world->y_size; j+=4)
     {
       place* target = get_place(world, i - rand()%5, j - rand()%5);
       if(target->higth >= 0)
@@ -31,7 +31,8 @@ void generate_dange(world* world, int x, int y, int seed)
     if(!p->lvl) 
     {
       srand(seed + x + y * (world->x_size));
-      p->lvl = generate_dangeon_map(32,64);
+      p->lvl = generate_dangeon_map(32, 64);
+      p->enemys = generate_dangeon_enemys(p->lvl, p->higth * abs(p->term + MIN_TERM));
       srand(seed);
     }
 }

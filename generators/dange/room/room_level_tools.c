@@ -35,8 +35,8 @@ vlist* find_all_room_begin(level* l) {
   
   for (int i = 0; i < l->heigth; i++){
     for (int j = 0; j < l->width; j++){
-      char item = get_lvl_xy(l, i, j);
-      if(item != FLOOR) continue;
+      char type = get_lvl_xy(l, i, j);
+      if(type != FLOOR) continue;
       vec beg = find_room_begin(l, v(i, j));
       if(!v_equal(beg, v(i, j)) && !vl_has(vl, beg)) vl_push(vl, beg.x, beg.y);
     }
@@ -44,10 +44,10 @@ vlist* find_all_room_begin(level* l) {
   return vl;
 }
 
-vec find_level_xy(level* l, char item) {
+vec find_level_xy(level* l, char type) {
   for(int i = 0; i < l->heigth; i++) {
     for(int j = 0; j < l->width; j++) {
-      if(get_lvl_xy(l, i, j) == item) {
+      if(get_lvl_xy(l, i, j) == type) {
         vec v = {x:i, y:j};
         return v;
       }
@@ -55,6 +55,6 @@ vec find_level_xy(level* l, char item) {
   }
 }
 
-int count_in_rad(level* l, int x, int y, int r, char item) {
-  return count_level_area_xy(l, x-r, y-r, r*2+1, r*2+1, item);
+int count_in_rad(level* l, int x, int y, int r, char type) {
+  return count_level_area_xy(l, x-r, y-r, r*2+1, r*2+1, type);
 }

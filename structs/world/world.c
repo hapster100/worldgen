@@ -21,9 +21,16 @@ void world_free(world* w) {
   for (int i = 0; i < w->x_size * w->y_size; i++)
   {
     place pl = w->map[i];
-    if(pl.lvl) {
+    
+    if(pl.lvl) 
+    {
       level_free(pl.lvl);
     } 
+    
+    if(pl.enemys) 
+    {
+      de_free(pl.enemys);
+    }
   }
   free(w);
   

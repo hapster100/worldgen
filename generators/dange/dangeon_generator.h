@@ -5,5 +5,6 @@
 #include "./hallway/hallway_generator.h"
 
 level* generate_dangeon_map(int heigth, int wight);
+denemy* generate_dangeon_enemys(level* l, int diff);
 
 #endif

@@ -3,5 +3,6 @@
 
 #include "./actions/actions.h"
 #include "./state/ggstate.h"
+#include "./characters/enemy/enemy.h"
 
 #endif

@@ -10,6 +10,7 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
 
     act->act = w_move_to;
     act->args = malloc(sizeof(void*) * 3);
+    act->num_arg = 3;
     
     va_start(vl, CODE);
     
@@ -29,6 +30,7 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
     
     act->act = d_move_to;
     act->args = malloc(sizeof(void*) * 3);
+    act->num_arg = 3;
 
     va_list vl;
     va_start(vl, CODE);
@@ -46,6 +48,23 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
 
     break;
   
+  case TO_DANGE:
+
+    act->act = to_dangeon;
+    act->args = malloc(sizeof(void*));
+    act->num_arg = 1;
+
+    act->args[0] = malloc(sizeof(ggstate**));
+    *(ggstate**)(act->args[0]) = ggs;
+    break;
+  case TO_WORLD:
+    act->act = to_world;
+    act->args = malloc(sizeof(void*));
+    act->num_arg = 1;
+
+    act->args[0] = malloc(sizeof(ggstate**));
+    *(ggstate**)(act->args[0]) = ggs;
+    break;
   default:
     act_free(act);
     return;

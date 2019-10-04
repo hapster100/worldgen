@@ -60,15 +60,15 @@ void fill_level_area(level* l, int x, int y, int h, int w, char filler) {
   }
 }
 
-int count_level_xy(level* l, char item) {
+int count_level_xy(level* l, char type) {
   int counter = 0;
   for(int i = 0; i < l->heigth * l->width; i++) {
-    if(l->map[i] == item) counter++;
+    if(l->map[i] == type) counter++;
   }
   return counter;
 }
 
-int count_level_area_xy(level* l, int x, int y, int h, int w, char item) {
+int count_level_area_xy(level* l, int x, int y, int h, int w, char type) {
   int counter = 0;
   if(x >= l->heigth || y >= l->width) return 0;
   while(x < 0) {x++; h--;}
@@ -78,7 +78,7 @@ int count_level_area_xy(level* l, int x, int y, int h, int w, char item) {
   
   for (int i = 0; i < h; i++) {
     for (int j = 0; j < w; j++) {
-     if(get_lvl_xy(l, x+i, y+j) == item) counter++;
+     if(get_lvl_xy(l, x+i, y+j) == type) counter++;
     }
   }
   return counter;

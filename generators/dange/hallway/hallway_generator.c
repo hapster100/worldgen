@@ -24,12 +24,12 @@ void set_doors(level* l, vec beg) {
   free(walls);
 }
 
-vec* get_xy_array(level* l, int num, char item) {
+vec* get_xy_array(level* l, int num, char type) {
   int count = 0;
   vec* arr = malloc(sizeof(vec) * num);
   for (int i = 0; i < l->heigth; i++) {
     for(int j = 0; j < l->width; j++) {
-      if(get_lvl_xy(l, i, j) == item) arr[count++] = v(i, j);
+      if(get_lvl_xy(l, i, j) == type) arr[count++] = v(i, j);
     }
   }
   return arr;
@@ -64,8 +64,8 @@ void set_tube(level* l) {
   {
     for (int j = 0; j < l->width; j++)
     {
-      int item = get_lvl_xy(l, i, j);
-      if(item != EMPTY) continue;
+      int type = get_lvl_xy(l, i, j);
+      if(type != EMPTY) continue;
 
       for (int r = 0; r < 11; r++) {
         w[r] = count_in_rad(l, i, j, r+1, WALL);
@@ -253,13 +253,13 @@ void build_way(level* l, vec start, vec end) {
   
   while(way->val) {
     vec v = *way->val;
-    char item = get_lvl_xy(l, v.x, v.y);
-    if (item == WATER)
+    char type = get_lvl_xy(l, v.x, v.y);
+    if (type == WATER)
     {
       set_lvl_xy(l, v.x, v.y, BRIDGE);
-    }else if(item == WALL) {
+    }else if(type == WALL) {
       set_lvl_xy(l, v.x, v.y, DOOR);
-    }else if(item != FLOOR && item != DOOR && item != BRIDGE) {
+    }else if(type != FLOOR && type != DOOR && type != BRIDGE) {
       set_lvl_xy(l, v.x, v.y, HALLWAY);
     }
 

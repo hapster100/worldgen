@@ -1,6 +1,6 @@
 #include "./dangeon_scene.h"
 
-vlist* get_views_from(level* l, vec from, int rad) {
+vlist* get_views_from(level* l, denemy* ens, vec from, int rad) {
 
   vlist* views = create_vlist();
 
@@ -13,7 +13,7 @@ vlist* get_views_from(level* l, vec from, int rad) {
   {
     vecfl ray = vfl(e.x,e.y);
 
-    while (absvfl(ray) < rad)
+    while (absvfl(ray) < rad + 0.5)
     {
       int x = (int)(center.x + ray.x);
       int y = (int)(center.y + ray.y);
@@ -21,10 +21,10 @@ vlist* get_views_from(level* l, vec from, int rad) {
       if(!vec_in_area(v(x, y), v(0, 0), v(l->heigth-1, l->width-1)))
         break;
       
-      int item = get_lvl_xy(l,x,y);
+      int type = get_lvl_xy(l,x,y);
       int is_in = vl_has(views, v(x, y));
 
-      if(item == WALL)
+      if(type == WALL || de_has(ens, v(x, y)))
       {
         if(!is_in) 
           vl_push(views, x, y);
@@ -87,29 +87,40 @@ void set_dange_colors() {
   init_pair(SMALL_TUBE, SMALL_TUBE, SMALL_TUBE+50);
 }
 
-#define VIEW_RAD 5
+#define VIEW_RAD 10
 
 WINDOW* get_dange_win(ggstate* ggs) 
 {
+  denemy* enemys = ggs_world_place(ggs)->enemys;
   level* dange = ggs_dange(ggs);
+ 
   int h = dange->heigth;
   int w = dange->width;
 
   WINDOW* dwin = newwin(h, w*2, LINES/2 - h/2, COLS/2 - w);
 
-  int item = get_lvl_xy(dange, ggs->d_x, ggs->d_y);
-  wattrset(dwin, COLOR_PAIR(item));
+  int type = get_lvl_xy(dange, ggs->d_x, ggs->d_y);
+  wattrset(dwin, COLOR_PAIR(type));
   mvwprintw(dwin, h - ggs->d_x - 1, 2*ggs->d_y, "\u25a3 ");
-  wattroff(dwin, COLOR_PAIR(item));
+  wattroff(dwin, COLOR_PAIR(type));
 
-  vlist* views = get_views_from(dange, v(ggs->d_x, ggs->d_y), VIEW_RAD);
+  vlist* views = get_views_from(dange, enemys, v(ggs->d_x, ggs->d_y), VIEW_RAD);
 
   while(views->val) 
   {
     vec v = *views->val;
-    int item = get_lvl_xy(dange, v.x, v.y);
+    int type = get_lvl_xy(dange, v.x, v.y);
 
-    switch (item)
+    if(de_has(enemys, v))
+    {
+      wattrset(dwin, COLOR_PAIR(type));
+      mvwprintw(dwin,h - v.x -1, 2*v.y, "\u25c9 ");
+      wattroff(dwin, COLOR_PAIR(type));
+      vl_del(views, v, NULL);
+      continue;
+    }
+
+    switch (type)
     {
     case WATER:
       wattrset(dwin, COLOR_PAIR(WATER));
@@ -134,9 +145,9 @@ WINDOW* get_dange_win(ggstate* ggs)
     case SMALL_TUBE:
 
     case LARGE_TUBE:
-      wattrset(dwin, COLOR_PAIR(item));
+      wattrset(dwin, COLOR_PAIR(type));
       mvwprintw(dwin,h- v.x - 1, 2*v.y, "  ");
-      wattroff(dwin, COLOR_PAIR(item));
+      wattroff(dwin, COLOR_PAIR(type));
       break;
       
     default:
@@ -157,6 +168,7 @@ int dangeon_scene(ggstate* ggs)
   set_dange_colors();
 
   level* dange = ggs_dange(ggs);
+  denemy* enemys = ggs_world_place(ggs)->enemys;
   int h = dange->heigth;
   int w = dange->width;
   
@@ -177,29 +189,33 @@ int dangeon_scene(ggstate* ggs)
 
     refresh();
     wrefresh(dwin);
-
     switch (getch())
     {
     case KEY_UP:
-      ggs_add_action(ggs, MOVE_DANGE, ggs->d_x+1, ggs->d_y);
+      if(!de_has(enemys, v(ggs->d_x+1, ggs->d_y)))
+        ggs_add_action(ggs, MOVE_DANGE, ggs->d_x+1, ggs->d_y);
       ggs_resolve_actions(ggs);
       break;
     case KEY_DOWN:
-      ggs_add_action(ggs, MOVE_DANGE, ggs->d_x-1, ggs->d_y);
+      if(!de_has(enemys, v(ggs->d_x-1, ggs->d_y)))
+       ggs_add_action(ggs, MOVE_DANGE, ggs->d_x-1, ggs->d_y);
       ggs_resolve_actions(ggs);
       break;
     case KEY_LEFT:
-      ggs_add_action(ggs, MOVE_DANGE, ggs->d_x, ggs->d_y-1);
+      if(!de_has(enemys, v(ggs->d_x, ggs->d_y-1)))
+        ggs_add_action(ggs, MOVE_DANGE, ggs->d_x, ggs->d_y-1);
       ggs_resolve_actions(ggs);
       break;
     case KEY_RIGHT:
-      ggs_add_action(ggs, MOVE_DANGE, ggs->d_x, ggs->d_y+1);
+      if(!de_has(enemys, v(ggs->d_x, ggs->d_y+1)))
+        ggs_add_action(ggs, MOVE_DANGE, ggs->d_x, ggs->d_y+1);
       ggs_resolve_actions(ggs);
       break;
     
     case '\n':
       if(get_lvl_xy(dange, ggs->d_x, ggs->d_y) == START)
-        to_world(ggs);
+        ggs_add_action(ggs, TO_WORLD);
+        ggs_resolve_actions(ggs);
         return WORLD;
       break;
     case 'm':

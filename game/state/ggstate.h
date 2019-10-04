@@ -1,9 +1,9 @@
-#ifndef _GAME_STATE_
-#define _GAME_STATE_
+#ifndef _GAME_GLOBAL_STATE_
+#define _GAME_GLOBAL_STATE_
 
-#include "../../structs/structs.h"
-#include "../../generators/generators.h"
-#include "../actions/action_stack.h"
+#include "../../structs/world/world.h"
+#include "../actions/action_stack/action_stack.h"
+#include "../../generators/world/world_generator.h"
 
 #define LT_WORLD 0;
 #define LT_DANGE 1;

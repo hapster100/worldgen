@@ -3,6 +3,7 @@
 
 #include "../../consts/world_const.h"
 #include "../level/level.h"
+#include "../../game/characters/enemy/dange_enemys.h"
 #include <stdio.h>
 
 #define T_NONE 0
@@ -21,6 +22,7 @@ typedef struct place{
   char term;
   char type;
   level* lvl;
+  denemy* enemys;
 } place;
 
 int get_term(place* p);
