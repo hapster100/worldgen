@@ -162,6 +162,36 @@ WINDOW* get_dange_win(ggstate* ggs)
   return dwin;
 }
 
+WINDOW* get_look_win(ggstate* ggs, vec look)
+{
+  level* dange = ggs_dange(ggs);
+  denemy* enemys = ggs_world_place(ggs)->enemys;
+
+  vec wpos = v(LINES/2 + dange->heigth/2 + 2, 3);
+
+  WINDOW* lwin;
+
+  if(de_has(enemys, look))
+  {
+    lwin = newwin(20, 20, wpos.x, wpos.y);
+    box(lwin, 0, 0);
+    mvwaddstr(lwin, 2, 2, "YOU");
+  }
+  else if (v_equal(v(ggs->d_x, ggs->d_y), look))
+  {
+    lwin = newwin(5, 20, wpos.x, wpos.y);
+    box(lwin, 0, 0);
+  }
+  else
+  {
+    lwin = newwin(5, 20, wpos.x, wpos.y);
+    box(lwin, 0, 0);
+  }
+  
+  return lwin;
+
+}
+
 int dangeon_scene(ggstate* ggs) 
 {
 
@@ -171,11 +201,14 @@ int dangeon_scene(ggstate* ggs)
   denemy* enemys = ggs_world_place(ggs)->enemys;
   int h = dange->heigth;
   int w = dange->width;
+
+  int look_at_mode = 0;
   
   do
   {
     clearscreen();
     WINDOW* dwin = get_dange_win(ggs);
+
     
     if(get_lvl_xy(dange, ggs->d_x, ggs->d_y) == START) {
       attrset(COLOR_PAIR(1));
@@ -189,6 +222,53 @@ int dangeon_scene(ggstate* ggs)
 
     refresh();
     wrefresh(dwin);
+    if(look_at_mode)
+    {
+      vlist* views = get_views_from(dange, enemys, v(ggs->d_x, ggs->d_y), VIEW_RAD);
+      do
+      {
+        vec look = {x: ggs->d_x, y: ggs->d_y};
+
+        WINDOW* lwin = get_look_win(ggs, look);
+        wrefresh(lwin);
+
+        switch (getch())
+        {   
+        case KEY_UP:
+          if(vl_has(views, v(look.x + 1, look.y)))
+          {
+            look.x++;
+          }
+          break;
+        case KEY_DOWN:
+          if(vl_has(views, v(look.x - 1, look.y)))
+          {
+            look.x--;
+          }
+          break;
+        case KEY_RIGHT:
+          if(vl_has(views, v(look.x, look.y + 1)))
+          {
+            look.y++;
+          }
+          break;
+        case KEY_LEFT:
+          if(vl_has(views, v(look.x, look.y - 1)))
+          {
+            look.y--;
+          }
+        case 'l':
+          look_at_mode = 0;
+          break;
+        
+        default:
+          break;
+        }
+
+      } while (look_at_mode);
+
+      vl_free(views);
+    }
     switch (getch())
     {
     case KEY_UP:
@@ -217,6 +297,9 @@ int dangeon_scene(ggstate* ggs)
         ggs_add_action(ggs, TO_WORLD);
         ggs_resolve_actions(ggs);
         return WORLD;
+      break;
+    case 'l':
+      look_at_mode = 1;
       break;
     case 'm':
       return MINE_MENU;

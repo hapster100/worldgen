@@ -2,7 +2,6 @@
 
 void* item_obj_init(int type, ...)
 {
-  printf("ITEM OBJ INIT START");getchar();
   void* obj = NULL;
   va_list vl;
   va_start(vl, type);
@@ -28,7 +27,6 @@ void* item_obj_init(int type, ...)
     va_end(vl);
     break;
   }
-  printf("ITEM OBJ INIT END");getchar();
   return obj;
 
 }
