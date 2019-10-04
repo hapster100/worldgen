@@ -49,7 +49,8 @@ WINDOW* get_place_info(ggstate* ggs) {
 }
 
 
-WINDOW* get_world_win(ggstate* ggs, int scale, int (*get)(place*), int mode) {
+WINDOW* get_world_win(ggstate* ggs, int scale, int (*get)(place*), int mode) 
+{
   int x_size = 66;
   int y_size = 33;
   WINDOW* wwin = newwin(y_size, x_size, LINES/2 - y_size/2, COLS/2 - x_size/2);
