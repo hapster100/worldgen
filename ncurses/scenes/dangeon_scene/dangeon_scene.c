@@ -273,13 +273,6 @@ WINDOW* get_look_win(ggstate* ggs, vec look)
 
     int line = 2;
 
-    //////////////
-    if(p->way->val)
-      mvprintw(1, 2, "%d %d %f", p->way->val->x, p->way->val->y, p->next_action_time);
-    else
-      mvprintw(1, 2, "no");
-    ////////////
-
     wattrset(lwin, COLOR_PAIR(2));
     mvwaddstr(lwin, line++, 2, "     ENEMY INFO     ");
     mvwaddstr(lwin, line++, 2, "name:               ");

@@ -46,11 +46,11 @@ vec get_start_position(world* world) {
       int dy = r - abs(dx);
 
       place* pl = get_place(world, start.x + dx, start.y + dy);
-      if (pl->type == T_LAND && between(pl->higth, 0, 10) && between(pl->term, 5, 15))
+      if (pl->type == T_LAND && between(pl->higth, 0, 4) && between(pl->term, 10, 14))
         return v(start.x + dx, start.y + dy);
       
       pl = get_place(world, start.x + dx, start.y - dy);
-      if (pl->type == T_LAND && between(pl->higth, 0, 10) && between(pl->term, 5, 15))
+      if (pl->type == T_LAND && between(pl->higth, 0, 4) && between(pl->term, 10, 14))
         return v(start.x + dx, start.y - dy);
     }
     
