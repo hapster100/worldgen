@@ -98,7 +98,7 @@ int create_world(ggstate* ggs) {
 
     move(LINES/2+3, COLS/2-7);
     if(curr_param == 3) attrset(COLOR_PAIR(1));
-    addstr("LET CREATE");
+    addstr("CREATE WORLD");
     if(curr_param == 3) attroff(COLOR_PAIR(1));
 
     move(LINES/2+4, COLS/2-7);
@@ -151,7 +151,7 @@ int create_world(ggstate* ggs) {
             free(name);
             free(seed);
 
-            return WORLD;
+            return CREATE_HERO;
           }
           if(curr_param==OPT_NUM-1) return MINE_MENU;
         } else {

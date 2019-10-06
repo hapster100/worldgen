@@ -36,7 +36,7 @@ int main_menu(ggstate* ggs) {
         break;
       case '\n':
         if(target==OPT_NUM-1) return EXIT;
-        if(target==0) return CREATE;
+        if(target==0) return CREATE_WORLD;
         break;
     }
   }while(true);

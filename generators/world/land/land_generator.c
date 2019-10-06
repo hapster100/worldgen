@@ -35,6 +35,15 @@ int getWaterLine(world* w) {
       }
     }
   }
+  while(underwater*100.0/size > WATER_PROC) {
+    waterline--;
+    underwater = 0;
+    for (int i = 0; i < w->x_size; i++) {
+      for(int j = 0; j < w->y_size; j++){
+        if(get_place(w, i, j)->higth < waterline) underwater++;
+      }
+    }
+  }
   return waterline;
 }
 
@@ -95,7 +104,7 @@ void land_generator(world* w) {
     }
   }
 
-  get_place(w, w->x_size/2, w->y_size/2)->higth = abs(getGenerateHigth(0, w->x_size));
+  get_place(w, w->x_size/2, w->y_size/2)->higth = 2*abs(getGenerateHigth(0, w->x_size));
 
   for (int dx = (w->x_size-1)/2; dx > 1; dx/=2) {
     for (int x = 0; x < w->x_size - 1; x+=dx) {

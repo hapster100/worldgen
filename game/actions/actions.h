@@ -5,6 +5,7 @@
 #define MOVE_DANGE 11
 #define TO_DANGE 12
 #define TO_WORLD 13
+#define ENEMY_MOVE 14
 
 #include "./action_stack/action_stack.h"
 #include "./move/move.h"
@@ -12,5 +13,6 @@
 
 void ggs_add_action(ggstate* ggs, int CODE, ...);
 void ggs_resolve_actions(ggstate* gss);
+void ggs_dange_step(ggstate* ggs);
 
 #endif

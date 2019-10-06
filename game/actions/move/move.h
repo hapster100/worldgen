@@ -9,4 +9,6 @@ char* d_move_to(void** args);
 char* to_dangeon(void** args);
 char* to_world(void** args);
 
+char* enemy_move(void** args);
+
 #endif

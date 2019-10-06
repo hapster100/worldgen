@@ -4,6 +4,9 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
 {
   action* act = act_init();
   va_list vl;
+
+  va_start(vl, CODE);
+  
   switch (CODE)
   {
   case MOVE_WORLD:
@@ -12,7 +15,6 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
     act->args = malloc(sizeof(void*) * 3);
     act->num_arg = 3;
     
-    va_start(vl, CODE);
     
     act->args[0] = malloc(sizeof(ggstate**));
     *(ggstate**)(act->args[0]) = ggs;
@@ -22,18 +24,12 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
 
     act->args[2] = malloc(sizeof(int*));
     *(int*)(act->args[2]) = va_arg(vl, int);
-
-    va_end(vl);
     break;
   
   case MOVE_DANGE:
-    
     act->act = d_move_to;
     act->args = malloc(sizeof(void*) * 3);
     act->num_arg = 3;
-
-    va_list vl;
-    va_start(vl, CODE);
     
     act->args[0] = malloc(sizeof(ggstate**));
     *(ggstate**)(act->args[0]) = ggs;
@@ -43,13 +39,9 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
 
     act->args[2] = malloc(sizeof(int*));
     *(int*)(act->args[2]) = va_arg(vl, int);
-
-    va_end(vl);
-
     break;
   
   case TO_DANGE:
-
     act->act = to_dangeon;
     act->args = malloc(sizeof(void*));
     act->num_arg = 1;
@@ -57,6 +49,7 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
     act->args[0] = malloc(sizeof(ggstate**));
     *(ggstate**)(act->args[0]) = ggs;
     break;
+
   case TO_WORLD:
     act->act = to_world;
     act->args = malloc(sizeof(void*));
@@ -65,11 +58,27 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
     act->args[0] = malloc(sizeof(ggstate**));
     *(ggstate**)(act->args[0]) = ggs;
     break;
+
+  case ENEMY_MOVE:
+    act->act = enemy_move;
+    act->args = malloc(sizeof(void*)*2);
+    act->num_arg = 2;
+
+    act->args[0] = malloc(sizeof(ggstate**));
+    *(ggstate**)(act->args[0]) = ggs;
+
+    act->args[1] = malloc(sizeof(denemy**));
+    *(denemy**)(act->args[1]) = va_arg(vl, denemy*);
+    break;
+
   default:
     act_free(act);
     return;
     break;
   }
+
+  va_end(vl);
+
   acts_push(&ggs->act_stack, act);
 }
 
@@ -80,4 +89,58 @@ void ggs_resolve_actions(ggstate* ggs)
     act_resolve(acts_pop(&ggs->act_stack));
   }
   
+}
+
+void ggs_set_enemys_way(ggstate* ggs)
+ {
+    denemy* enemys = ggs_enemys(ggs);
+    level* dange = ggs_dange(ggs);
+    vec hero_pos = v(ggs->d_x, ggs->d_y);
+
+    while (enemys)
+    {
+      vec pos = *enemys->pos;
+      vlist* views = get_views_from(dange, enemys, pos, 15);
+      
+      if(vl_has(views, hero_pos))
+      {
+        vlist* way = find_way(dange, pos, hero_pos);
+        while (enemys->way->val)
+        {
+          vl_del(enemys->way, *enemys->way->val, NULL);
+        }
+        while (way->val)
+        {
+          vec w = *way->val;
+          vl_push_end(enemys->way, w);
+          vl_del(way, w, NULL);
+        }
+      } 
+      else if(!enemys->way->val)
+      {
+        vec randv = v(pos.x + rand()%3 - 1, pos.y + rand()%3 - 1);
+        vl_push(enemys->way, randv.x, randv.y);
+      }
+      vl_free(views);
+      enemys = enemys->next;
+    }
+
+ }
+
+
+void ggs_enemys_actions(ggstate* ggs)
+{
+  denemy* en = ggs_enemys(ggs);
+
+  while(en)
+  {
+    ggs_add_action(ggs, ENEMY_MOVE, en);
+    en = en->next;
+  }
+}
+
+void ggs_dange_step(ggstate* ggs)
+{
+  ggs_set_enemys_way(ggs);
+  ggs_enemys_actions(ggs);
 }

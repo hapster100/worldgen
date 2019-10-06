@@ -44,6 +44,138 @@ void set_dange_colors() {
 
 #define VIEW_RAD 10
 
+int equipprinth(equipment* e)
+{
+  int h = 0;
+  if(e->arm) 
+  {
+    h+=3;
+    if(attr_zero_count(e->arm->attr_bonus) != 4)
+      h++;
+  } 
+  if(e->weap) 
+  {
+    h+=3;
+    if(attr_zero_count(e->weap->attr_bonus) != 4)
+      h++;
+  } 
+  if(e->amul) 
+    h+=3;
+}
+
+void wprintattrbs(WINDOW* w, attributes* bs, int line)
+{
+  int cols = 2;
+  int attrs[ATTR_NUM];
+  char* attrs_name[ATTR_NUM];
+  attrs[INT_I] = bs->INT;
+  attrs[CON_I] = bs->CON;
+  attrs[DEX_I] = bs->DEX;
+  attrs[STR_I] = bs->STR;
+  attrs_name[INT_I] = "INT:";
+  attrs_name[CON_I] = "CON:";
+  attrs_name[DEX_I] = "DEX:";
+  attrs_name[STR_I] = "STR:";
+  for (int i = 0; i < ATTR_NUM; i++)
+  {
+    if (attrs[i])
+    {
+      wattron(w, COLOR_PAIR(2));
+      mvwaddstr(w, line, cols, attrs_name[i]); cols += 5;
+      wattroff(w, COLOR_PAIR(2));
+      wattron(w, COLOR_PAIR(0));
+      mvwprintw(w, line, cols, "%+3d", attrs[i]); cols+=4;
+      wattroff(w, COLOR_PAIR(0));
+    }
+  }
+}
+
+void wprintequip(WINDOW* w, equipment* equip, int line)
+{
+    armor* arm = equip->arm;
+    weapon* weap = equip->weap;
+    amulet* amul = equip->amul;
+  // PRINT ARMOR BLOCK
+    if(equip->arm)
+    {
+      attributes* bs = arm->attr_bonus;
+
+      wattron(w, COLOR_PAIR(2));
+      mvwaddstr(w, line++, 2, "      ARMOR         ");
+      mvwaddstr(w, line, 2, "Protection:         ");
+      wattroff(w, COLOR_PAIR(2));
+
+      wattron(w, COLOR_PAIR(0));
+      mvwprintw(w, line++, 13, "%+4d", arm->protection);
+      wattroff(w, COLOR_PAIR(0));
+      wattron(w, COLOR_PAIR(0));
+      wattroff(w, COLOR_PAIR(0));
+      
+      if (attr_zero_count(bs) != 4)
+      {
+        wprintattrbs(w, bs, line);
+        line++;
+      }
+      line++;
+    }
+
+    // PRINT WEAPON BLOCK
+    if(weap)
+    {
+      attributes* bs = weap->attr_bonus;
+      
+      wattron(w, COLOR_PAIR(2));
+      mvwaddstr(w, line++, 2, "      WEAPON        ");
+      mvwaddstr(w, line, 2, "Damage:             ");
+      wattroff(w, COLOR_PAIR(2));
+
+      wattron(w, COLOR_PAIR(0));
+      mvwprintw(w, line++, 9, "%+4d", weap->damage);
+      wattroff(w, COLOR_PAIR(0));
+      if (attr_zero_count(bs) != 4)
+      {
+        wprintattrbs(w,bs, line);
+        line++;
+      }
+      line++;
+    }
+
+    // PRINT AMULET BLOCK
+    if(amul)
+    {
+      attributes* bs = amul->attr_bonus;
+
+      wattron(w, COLOR_PAIR(2));
+      mvwaddstr(w, line++, 2, "      AMULET         ");
+      wattroff(w, COLOR_PAIR(2));
+
+      wprintattrbs(w, bs, line);
+    }
+}
+
+void wprintstats(WINDOW* w, stats* st, int line)
+{
+  wattrset(w, COLOR_PAIR(2));
+  mvwaddstr(w, line++, 2, "LVL:                ");
+  mvwaddstr(w, line++, 2, "HP:                 ");line++;
+  mvwaddstr(w, line++, 2, "STR:     CON:       ");
+  mvwaddstr(w, line, 2, "DEX:     INT:       ");
+  wattroff(w, COLOR_PAIR(2));
+
+  line -= 4;
+
+  wattrset(w, COLOR_PAIR(0));
+  mvwprintw(w, line++, 7, "%3d", st->lvl);
+  mvwprintw(w, line++, 7, "%4d/%4d", st->HP, max_hp(st));line++; 
+  mvwprintw(w, line, 7, "%3d", st->attr->STR);
+  mvwprintw(w, line++, 16, "%3d", st->attr->CON);
+  mvwprintw(w, line, 7, "%3d", st->attr->DEX);
+  mvwprintw(w, line++, 16, "%3d", st->attr->INT);
+  wattroff(w, COLOR_PAIR(0));
+
+  wprintequip(w,st->equip, ++line);
+}
+
 WINDOW* get_dange_win(ggstate* ggs) 
 {
   denemy* enemys = ggs_world_place(ggs)->enemys;
@@ -131,237 +263,48 @@ WINDOW* get_look_win(ggstate* ggs, vec look)
 
     denemy* p = enemys;
     while (!v_equal(look, *p->pos))
-    {
       p = p->next;
-    }
-
     enemy* target = p->en;
 
-
-    int win_h = 13;
-
-    if(en_armor(target)) 
-    {
-      win_h+=3;
-      if(attr_zero_count(en_armor(target)->attr_bonus) != 4)
-        win_h++;
-    } 
-    if(en_weapon(target)) 
-    {
-      win_h+=3;
-      if(attr_zero_count(en_weapon(target)->attr_bonus) != 4)
-        win_h++;
-    } 
-    if(en_amulet(target)) 
-      win_h+=3;
-
+    int win_h = 13 + equipprinth(target->st->equip);
     lwin = newwin(win_h, 25, wpos.x, wpos.y);
 
     int line = 2;
-    mvwprintw(lwin, 1, 2, "%d %d", p->way->val->x, p->way->val->y);
-    wattrset(lwin, COLOR_PAIR(2));
 
+    //////////////
+    if(p->way->val)
+      mvwprintw(lwin, 1, 2, "%d %d", p->way->val->x, p->way->val->y);
+    else
+      mvwprintw(lwin, 1, 2, "no");
+    ////////////
+
+    wattrset(lwin, COLOR_PAIR(2));
     mvwaddstr(lwin, line++, 2, "     ENEMY INFO     ");
     mvwaddstr(lwin, line++, 2, "name:               ");
     mvwaddstr(lwin, line++, 2, "reward:       \u24bc");line++;
-    mvwaddstr(lwin, line++, 2, "LVL:                ");
-    mvwaddstr(lwin, line++, 2, "HP:                 ");line++;
-    mvwaddstr(lwin, line++, 2, "STR:     CON:       ");
-    mvwaddstr(lwin, line++, 2, "DEX:     INT:       ");
-
     wattroff(lwin, COLOR_PAIR(2));
 
     line = 3;
     wattrset(lwin, COLOR_PAIR(0));
-
     mvwprintw(lwin, line++, 8, "%15s", target->name);
-    mvwprintw(lwin, line++, 11, "%4d", target->reward);line++;
-    mvwprintw(lwin, line++, 7, "%3d", target->st->lvl);
-    mvwprintw(lwin, line++, 7, "%4d/%4d", target->st->HP, max_hp(target->st));line++; 
-    mvwprintw(lwin, line, 7, "%3d", en_STR(target));
-    mvwprintw(lwin, line++, 16, "%3d", en_CON(target));
-    mvwprintw(lwin, line, 7, "%3d", en_DEX(target));
-    mvwprintw(lwin, line++, 16, "%3d", en_INT(target));line++;
-
+    mvwprintw(lwin, line++, 11, "%4d", target->reward);
     wattroff(lwin, COLOR_PAIR(0));
 
-    
-
-    // PRINT ARMOR BLOCK
-    if(en_armor(target))
-    {
-      attributes* bs = en_armor(target)->attr_bonus;
-
-      wattron(lwin, COLOR_PAIR(2));
-      mvwaddstr(lwin, line++, 2, "      ARMOR         ");
-      mvwaddstr(lwin, line, 2, "Protection:         ");
-      wattroff(lwin, COLOR_PAIR(2));
-
-      wattron(lwin, COLOR_PAIR(0));
-      mvwprintw(lwin, line++, 13, "%+4d", en_armor(target)->protection);
-      wattroff(lwin, COLOR_PAIR(0));
-      wattron(lwin, COLOR_PAIR(0));
-      wattroff(lwin, COLOR_PAIR(0));
-      
-      if (attr_zero_count(bs) != 4)
-      {
-        int cols = 2;
-        if (bs->STR)
-        {
-          wattron(lwin, COLOR_PAIR(2));
-          mvwaddstr(lwin, line, cols, "STR:"); cols += 5;
-          wattroff(lwin, COLOR_PAIR(2));
-          wattron(lwin, COLOR_PAIR(0));
-          mvwprintw(lwin, line, cols, "%+3d", bs->STR); cols+=4;
-          wattroff(lwin, COLOR_PAIR(0));
-        }
-        if (bs->CON)
-        {
-          wattron(lwin, COLOR_PAIR(2));
-          mvwaddstr(lwin, line, cols, "CON:"); cols += 5;
-          wattroff(lwin, COLOR_PAIR(2));
-          wattron(lwin, COLOR_PAIR(0));
-          mvwprintw(lwin, line, cols, "%+3d", bs->CON); cols+=4;
-          wattroff(lwin, COLOR_PAIR(0));
-        }
-        if (bs->DEX)
-        {
-          wattron(lwin, COLOR_PAIR(2));
-          mvwaddstr(lwin, line, cols, "DEX:"); cols += 5;
-          wattroff(lwin, COLOR_PAIR(2));
-          wattron(lwin, COLOR_PAIR(0));
-          mvwprintw(lwin, line, cols, "%+3d", bs->DEX); cols+=4;
-          wattroff(lwin, COLOR_PAIR(0));
-        }
-        if (bs->INT)
-        {
-          wattron(lwin, COLOR_PAIR(2));
-          mvwaddstr(lwin, line, cols, "INT:"); cols += 5;
-          wattroff(lwin, COLOR_PAIR(2));
-          wattron(lwin, COLOR_PAIR(0));
-          mvwprintw(lwin, line, cols, "%+3d", bs->INT); cols+=4;
-          wattroff(lwin, COLOR_PAIR(0));
-        }
-        line++;
-      }
-      line++;
-    }
-
-    // PRINT WEAPON BLOCK
-    if(en_weapon(target))
-    {
-      attributes* bs = en_weapon(target)->attr_bonus;
-      
-      wattron(lwin, COLOR_PAIR(2));
-      mvwaddstr(lwin, line++, 2, "      WEAPON        ");
-      mvwaddstr(lwin, line, 2, "Damage:             ");
-      wattroff(lwin, COLOR_PAIR(2));
-
-      wattron(lwin, COLOR_PAIR(0));
-      mvwprintw(lwin, line++, 9, "%+4d", en_weapon(target)->damage);
-      wattroff(lwin, COLOR_PAIR(0));
-      if (attr_zero_count(bs) != 4)
-      {
-        int cols = 2;
-        if (bs->STR)
-        {
-          wattron(lwin, COLOR_PAIR(2));
-          mvwaddstr(lwin, line, cols, "STR:"); cols += 5;
-          wattroff(lwin, COLOR_PAIR(2));
-          wattron(lwin, COLOR_PAIR(0));
-          mvwprintw(lwin, line, cols, "%+3d", bs->STR); cols+=4;
-          wattroff(lwin, COLOR_PAIR(0));
-        }
-        if (bs->CON)
-        {
-          wattron(lwin, COLOR_PAIR(2));
-          mvwaddstr(lwin, line, cols, "CON:"); cols += 5;
-          wattroff(lwin, COLOR_PAIR(2));
-          wattron(lwin, COLOR_PAIR(0));
-          mvwprintw(lwin, line, cols, "%+3d", bs->CON); cols+=4;
-          wattroff(lwin, COLOR_PAIR(0));
-        }
-        if (bs->DEX)
-        {
-          wattron(lwin, COLOR_PAIR(2));
-          mvwaddstr(lwin, line, cols, "DEX:"); cols += 5;
-          wattroff(lwin, COLOR_PAIR(2));
-          wattron(lwin, COLOR_PAIR(0));
-          mvwprintw(lwin, line, cols, "%+3d", bs->DEX); cols+=4;
-          wattroff(lwin, COLOR_PAIR(0));
-        }
-        if (bs->INT)
-        {
-          wattron(lwin, COLOR_PAIR(2));
-          mvwaddstr(lwin, line, cols, "INT:"); cols += 5;
-          wattroff(lwin, COLOR_PAIR(2));
-          wattron(lwin, COLOR_PAIR(0));
-          mvwprintw(lwin, line, cols, "%+3d", bs->INT); cols+=4;
-          wattroff(lwin, COLOR_PAIR(0));
-        }
-        line++;
-      }
-      line++;
-    }
-
-    // PRINT AMULET BLOCK
-    if(en_amulet(target))
-    {
-      attributes* bs = en_amulet(target)->attr_bonus;
-
-      wattron(lwin, COLOR_PAIR(2));
-      mvwaddstr(lwin, line++, 2, "      AMULET         ");
-      wattroff(lwin, COLOR_PAIR(2));
-
-      int cols = 2;
-      if (bs->STR)
-      {
-        wattron(lwin, COLOR_PAIR(2));
-        mvwaddstr(lwin, line, cols, "STR:"); cols += 5;
-        wattroff(lwin, COLOR_PAIR(2));
-        wattron(lwin, COLOR_PAIR(0));
-        mvwprintw(lwin, line, cols, "%+3d", bs->STR); cols+=4;
-        wattroff(lwin, COLOR_PAIR(0));
-      }
-      if (bs->CON)
-      {
-        wattron(lwin, COLOR_PAIR(2));
-        mvwaddstr(lwin, line, cols, "CON:"); cols += 5;
-        wattroff(lwin, COLOR_PAIR(2));
-        wattron(lwin, COLOR_PAIR(0));
-        mvwprintw(lwin, line, cols, "%+3d", bs->CON); cols+=4;
-        wattroff(lwin, COLOR_PAIR(0));
-      }
-      if (bs->DEX)
-      {
-        wattron(lwin, COLOR_PAIR(2));
-        mvwaddstr(lwin, line, cols, "DEX:"); cols += 5;
-        wattroff(lwin, COLOR_PAIR(2));
-        wattron(lwin, COLOR_PAIR(0));
-        mvwprintw(lwin, line, cols, "%+3d", bs->DEX); cols+=4;
-        wattroff(lwin, COLOR_PAIR(0));
-      }
-      if (bs->INT)
-      {
-        wattron(lwin, COLOR_PAIR(2));
-        mvwaddstr(lwin, line, cols, "INT:"); cols += 5  ;
-        wattroff(lwin, COLOR_PAIR(2));
-        wattron(lwin, COLOR_PAIR(0));
-        mvwprintw(lwin, line, cols, "%+3d", bs->INT); cols+=4;
-        wattroff(lwin, COLOR_PAIR(0));
-      }
-    }
+    wprintstats(lwin, target->st, 6);
 
     box(lwin, 0, 0);
   }
+
   else if (v_equal(v(ggs->d_x, ggs->d_y), look))
   {
-    lwin = newwin(5, 25, wpos.x, wpos.y);
+    int win_h = 8 + equipprinth(ggs->h->st->equip);
+    lwin = newwin(win_h, 25, wpos.x, wpos.y);
+
+    wprintstats(lwin, ggs->h->st, 2);
+
     box(lwin, 0, 0);
-    wattrset(lwin, COLOR_PAIR(2));
-    mvwaddstr(lwin, 2, 3, "YOU");
-    wattroff(lwin, COLOR_PAIR(2));
   }
+
   else
   {
     lwin = newwin(5, 25, wpos.x, wpos.y);
@@ -369,36 +312,14 @@ WINDOW* get_look_win(ggstate* ggs, vec look)
     int type = get_lvl_xy(dange, look.x, look.y);
     switch (type)
     {
-    case WATER:
-      is = "WATER";
-      break;
-
-    case WALL:
-      is = "WALL";
-      break;
-
-    case DOOR:
-      is = "DOOR";
-      break;
-    case HALLWAY:
-      is = "HALLWAY";
-      break;
-
-    case BRIDGE:
-      is = " BRIDGE";
-      break;
-
-    case FLOOR:
-      is = "FLOOR";
-      break;
-
-    case START:
-      is = "EXIT";
-      break;
-
-    default:
-      is = "NOTHING";
-      break;
+      case WATER: is = "WATER"; break;
+      case WALL: is = "WALL"; break;
+      case DOOR: is = "DOOR"; break;
+      case HALLWAY: is = "HALLWAY"; break;
+      case BRIDGE: is = " BRIDGE"; break;
+      case FLOOR: is = "FLOOR"; break;
+      case START: is = "EXIT"; break;
+      default: is = "NOTHING"; break;
     }
 
     box(lwin, 0, 0);
@@ -430,11 +351,13 @@ int dangeon_scene(ggstate* ggs)
   vec look;
   do
   {
+    
     if(mode == NORMAL_MODE)
     {
       ggs_dange_step(ggs);
       ggs_resolve_actions(ggs);
     }
+
     clearscreen();
     
     vlist* views = get_views_from(dange, enemys, v(ggs->d_x, ggs->d_y), VIEW_RAD);
@@ -481,7 +404,7 @@ int dangeon_scene(ggstate* ggs)
         break;
       case KEY_DOWN:
         // if(!de_has(enemys, v(ggs->d_x-1, ggs->d_y)))
-        ggs_add_action(ggs, MOVE_DANGE, ggs->d_x-1, ggs->d_y);
+          ggs_add_action(ggs, MOVE_DANGE, ggs->d_x-1, ggs->d_y);
         break;
       case KEY_LEFT:
         // if(!de_has(enemys, v(ggs->d_x, ggs->d_y-1)))
@@ -494,9 +417,11 @@ int dangeon_scene(ggstate* ggs)
       
       case '\n':
         if(get_lvl_xy(dange, ggs->d_x, ggs->d_y) == START)
+        {
           ggs_add_action(ggs, TO_WORLD);
           ggs_resolve_actions(ggs);
           return WORLD;
+        }
         break;
       case 'l':
         mode = LOOK_MODE;

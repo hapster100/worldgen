@@ -1,5 +1,5 @@
-#ifndef _CREATE_WORLD_SCENE_
-#define _CREATE_WORLD_SCENE_
+#ifndef _CREATE_WORLD_WORLD_SCENE_
+#define _CREATE_WORLD_WORLD_SCENE_
 
 #include <ncurses.h>
 #include <string.h>

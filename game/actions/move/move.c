@@ -98,3 +98,21 @@ char* to_world(void** args)
   ggs->location = LT_WORLD;
   return "TO WORLD";
 }
+
+char* enemy_move(void** args)
+{
+  ggstate* ggs = *(ggstate**)args[0];
+  denemy* en = *(denemy**)args[1];
+  
+  if (en->way->val)
+  {
+    vec to = *en->way->val;
+    if(d_legel_type(get_lvl_xy(ggs_dange(ggs), to.x, to.y)))
+    {
+      en->pos->x = to.x;
+      en->pos->y = to.y;
+    }
+  }
+
+  return "ENEMY MOVE";
+}
