@@ -58,5 +58,12 @@ void stats_free(stats* st)
 
 int max_hp(stats* st)
 {
-  return 100 + st->attr->CON * st->lvl;
+  attributes attr = full_attr(st);
+  return 100 + attr.CON * (10 + st->lvl);
+}
+
+float st_speed(stats* st)
+{
+  attributes attr = full_attr(st);
+  return 0.5 + 0.02 * attr.DEX * (1 + 0.01 * st->lvl);
 }

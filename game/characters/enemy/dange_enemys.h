@@ -10,6 +10,7 @@ typedef struct DANGE_ENEMY
   vec* pos;
   enemy* en;
   vlist* way;
+  float next_action_time;
 } denemy;
 
 denemy* de_init();

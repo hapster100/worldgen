@@ -64,6 +64,7 @@ char* d_move_to(void** args)
       {
         ggs->d_x = x_to;
         ggs->d_y = y_to;
+        ggs_world_place(ggs)->time += 1.0/st_speed(ggs->h->st);
       }
     }
   }
@@ -109,9 +110,13 @@ char* enemy_move(void** args)
     vec to = *en->way->val;
     if(d_legel_type(get_lvl_xy(ggs_dange(ggs), to.x, to.y)))
     {
-      en->pos->x = to.x;
-      en->pos->y = to.y;
+      if(!de_has(ggs_enemys(ggs), to))
+      {
+        en->pos->x = to.x;
+        en->pos->y = to.y;
+      }
     }
+    vl_del(en->way, to, NULL);
   }
 
   return "ENEMY MOVE";

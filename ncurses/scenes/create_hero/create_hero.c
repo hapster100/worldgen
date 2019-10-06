@@ -35,8 +35,10 @@ void print_attr(int active, int changed, char* name, int val, int line, int coll
     }
 }
 
+
 int create_hero(ggstate* ggs)
 {
+
 
   const int OPT_NUM = 7;
   int change_param = 0;
@@ -44,7 +46,7 @@ int create_hero(ggstate* ggs)
 
   int free_points = 4;
 
-  int attrs[ATTR_NUM] = {4,4,4,4};
+  int attrs[ATTR_NUM] = {5,5,5,5};
   char* attrs_name[ATTR_NUM];
   attrs_name[STR_I] = "STR";
   attrs_name[CON_I] = "CON";
@@ -59,6 +61,7 @@ int create_hero(ggstate* ggs)
   do
   {
     clearscreen();
+    curs_set(0);
 
     int line = LINES/2 - 1;
     int coll = COLS/2 - 7;
@@ -99,31 +102,48 @@ int create_hero(ggstate* ggs)
     mvaddstr(line, coll, "BACK");coll+=4;
     attroff(A_BLINK | COLOR_PAIR(1));
 
-    switch (getch())
+    if(curr_param == 0 && change_param)
+    {
+      move(LINES/2 - 1, COLS/2 + strlen(name) - 1);
+      curs_set(1);
+    }
+    
+    int ch = getch();
+    switch (ch)
     {
 
     case KEY_DOWN:
       if(!change_param && curr_param+1 < OPT_NUM)
+      {
         curr_param++;
+      } 
+      else if (curr_param < 4) 
+      {
+          curr_param++;
+      }
       break;
     case KEY_UP:
       if(!change_param && curr_param > 0)
+      {
         curr_param--;
+      }
+      else if (curr_param > 1)
+      {
+        curr_param--;
+      }
       break;
     
     case KEY_RIGHT:
-      if(change_param && change_param < 4)
-        if (change_param == 1 && !free_points)
-          change_param = 3;
-        else
-          change_param++;
+      if(change_param && change_param < 3)
+        change_param++;
       break;
     case KEY_LEFT:
       if(change_param && change_param > 1)
-        if(change_param == 3 && !free_points)
-          change_param = 1;
-        else if (!(change_param == 2 && attrs[curr_param-1] == 1))
+      {
+        change_param--;
+        if(change_param == 2 && !free_points)
           change_param--;
+      }  
       break;
     
     case '\n':
@@ -151,13 +171,13 @@ int create_hero(ggstate* ggs)
             free_points++;
             attrs[curr_param-1]--;
             if(attrs[curr_param-1] == 1)
-              change_param++;
+              change_param = 3;
             break;
           case 2:
             free_points--;
             attrs[curr_param-1]++;
             if(!free_points)
-              change_param--;
+              change_param = 3;
             break;
           case 3:
             change_param = 0;
@@ -173,7 +193,31 @@ int create_hero(ggstate* ggs)
       break;
     
     default:
+      if(curr_param == 0 && change_param) {
+
+          if(isalnum(ch)) {
+            if(name) {
+              if(strlen(name) < 15) {
+                strncat(name, (char*)&ch, 1);
+              }
+            }
+          }
+          if(ch == KEY_BACKSPACE) {
+            if(name) {
+              if(strlen(name) > 0) {
+                (name)[strlen(name)-1] = '\0';
+              }
+            }
+          }
+        }
       break;
+    }
+    if(change_param && between(curr_param, 1, 4))
+    {
+      if(change_param == 1 && attrs[curr_param - 1] == 1)
+        change_param++;
+      if(change_param == 2 && !free_points)
+        change_param++;
     }
   } while (true);
   

@@ -8,42 +8,57 @@ void forget_color() {
 
 WINDOW* get_world_info(ggstate* ggs) {
   int x_size = 25;
-  int y_size = 5;
+  int y_size = 7;
   WINDOW* winfo = newwin(y_size, x_size, LINES/2 - 33/2, COLS/2-66/2-x_size);
   box(winfo, 0, 0);
 
+  int line = 2;
   wattrset(winfo, COLOR_PAIR(2));
-  mvwaddstr(winfo, 1, (x_size-2)/2 - (strlen("WORLD INFO")-1)/2, "WORLD INFO");
-  mvwaddstr(winfo, 2, 2, "name:");
-  mvwaddstr(winfo, 3, 2, "size:");
+  mvwaddstr(winfo, line++, (x_size-2)/2 - (strlen("WORLD INFO")-1)/2, "WORLD INFO");
+  mvwaddstr(winfo, line++, 2, "name:");
+  mvwaddstr(winfo, line++, 2, "size:");
   wattroff(winfo, COLOR_PAIR(2));
 
-  mvwprintw(winfo, 2, 2+6, "%s", ggs->w->name);
-  mvwprintw(winfo, 3, 2+6, "%dx%d", ggs->w->x_size, ggs->w->y_size);
+  line=3;
+  mvwprintw(winfo, line++, 2+6, "%s", ggs->w->name);
+  mvwprintw(winfo, line, 2+6, "%dx%d", ggs->w->x_size, ggs->w->y_size);
 
   return winfo;
 }
 
 WINDOW* get_place_info(ggstate* ggs) {
   int x_size = 25;
-  int y_size = 7;
+  int y_size = 9;
+  if(ggs_world_place(ggs)->type == T_DANGEON)
+    y_size++;
+
   WINDOW* pwin = newwin(y_size, x_size, LINES/2 - 33/2, COLS/2+66/2);
   place* pl = get_place(ggs->w, ggs->w_x, ggs->w_y);
   box(pwin,0,0);
 
+  int line = 2;
   wattrset(pwin, COLOR_PAIR(2));
-  mvwaddstr(pwin, 1, (x_size-2)/2 - (strlen("WORLD INFO")-1)/2, "PLACE INFO");
-  mvwaddstr(pwin, 2, 2, "x:       y:");
-  mvwaddstr(pwin, 3, 2, "higth:");
-  mvwaddstr(pwin, 4, 2, "term:");
-  mvwaddstr(pwin, 5, 2, "type:");
+  mvwaddstr(pwin, line++, (x_size-2)/2 - (strlen("WORLD INFO")-1)/2, "PLACE INFO");
+  mvwaddstr(pwin, line++, 2, "x:       y:");
+  mvwaddstr(pwin, line++, 2, "higth:");
+  mvwaddstr(pwin, line++, 2, "term:");
+  mvwaddstr(pwin, line++, 2, "type:");
   wattroff(pwin, COLOR_PAIR(2));
 
-  mvwprintw(pwin, 2, 5, "%4d", ggs->w_x);
-  mvwprintw(pwin, 2, 14, "%4d", ggs->w_y);
-  mvwprintw(pwin, 3, 9, "%6d", get_higth(pl));
-  mvwprintw(pwin, 4, 9, "%6d", get_term(pl));
-  mvwprintw(pwin, 5, 8, place_type_str[get_type(pl)]);
+  line = 3;
+  mvwprintw(pwin, line, 5, "%4d", ggs->w_x);
+  mvwprintw(pwin, line++, 14, "%4d", ggs->w_y);
+  mvwprintw(pwin, line++, 9, "%6d", get_higth(pl));
+  mvwprintw(pwin, line++, 9, "%6d", get_term(pl));
+  mvwprintw(pwin, line++, 8, place_type_str[get_type(pl)]);
+
+  if(ggs_world_place(ggs)->type == T_DANGEON)
+  {
+    wattrset(pwin, COLOR_PAIR(2));
+    mvwprintw(pwin, line, 2, "difficulty:");
+    wattroff(pwin, COLOR_PAIR(2));
+    mvwprintw(pwin, line, 14, "%3d", dange_difficulty(ggs_world_place(ggs)));
+  }
 
   return pwin;
 }

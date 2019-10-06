@@ -32,6 +32,7 @@ void* ggs_free(ggstate* ggs);
 place* ggs_world_place(ggstate* ggs);
 level* ggs_dange(ggstate* ggs);
 denemy* ggs_enemys(ggstate* ggs);
+float ggs_dange_time(ggstate* ggs);
 
 void ggs_generate_world(ggstate* ggs, char* name, char* seed, int size);
 void ggs_set_hero(ggstate* ggs, char* name, int STR, int CON, int DEX, int INT, int points);

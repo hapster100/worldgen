@@ -32,7 +32,8 @@ void generate_dange(world* world, int x, int y, int seed)
     {
       srand(seed + x + y * (world->x_size));
       p->lvl = generate_dangeon_map(32, 64);
-      p->enemys = generate_dangeon_enemys(p->lvl, p->higth*3 + 2*abs(p->term + MIN_TERM/2));
+      p->enemys = generate_dangeon_enemys(p->lvl, dange_difficulty(p));
+      p->time = 0;
       srand(seed);
     }
 }

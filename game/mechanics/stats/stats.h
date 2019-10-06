@@ -13,7 +13,9 @@ typedef struct STATS
 
 stats* stats_init();
 void stats_free(stats* st);
+
 int max_hp(stats* st);
+float st_speed(stats* st);
 
 attributes full_attr(stats* st);
 

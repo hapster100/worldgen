@@ -63,3 +63,8 @@ void ggs_set_hero(ggstate* ggs, char* name, int STR, int CON, int DEX, int INT, 
     hero_free(ggs->h);
   ggs->h = start_hero(name, points, STR, CON, DEX, INT);
 }
+
+float ggs_dange_time(ggstate* ggs)
+{
+  return ggs_world_place(ggs)->time;
+}

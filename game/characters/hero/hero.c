@@ -39,3 +39,8 @@ hero* start_hero(char* name, int free_points, int STR, int CON, int DEX, int INT
   return h;
 
 }
+
+int exp_to_levelup(int lvl)
+{
+  return lvl*500;
+}

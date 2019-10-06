@@ -61,6 +61,8 @@ int equipprinth(equipment* e)
   } 
   if(e->amul) 
     h+=3;
+
+  return h;
 }
 
 void wprintattrbs(WINDOW* w, attributes* bs, int line)
@@ -273,9 +275,9 @@ WINDOW* get_look_win(ggstate* ggs, vec look)
 
     //////////////
     if(p->way->val)
-      mvwprintw(lwin, 1, 2, "%d %d", p->way->val->x, p->way->val->y);
+      mvprintw(1, 2, "%d %d %f", p->way->val->x, p->way->val->y, p->next_action_time);
     else
-      mvwprintw(lwin, 1, 2, "no");
+      mvprintw(1, 2, "no");
     ////////////
 
     wattrset(lwin, COLOR_PAIR(2));
@@ -291,18 +293,30 @@ WINDOW* get_look_win(ggstate* ggs, vec look)
     wattroff(lwin, COLOR_PAIR(0));
 
     wprintstats(lwin, target->st, 6);
-
-    box(lwin, 0, 0);
   }
 
   else if (v_equal(v(ggs->d_x, ggs->d_y), look))
   {
-    int win_h = 8 + equipprinth(ggs->h->st->equip);
+    int win_h = 14 + equipprinth(ggs->h->st->equip);
     lwin = newwin(win_h, 25, wpos.x, wpos.y);
 
-    wprintstats(lwin, ggs->h->st, 2);
+    int line = 2;
 
-    box(lwin, 0, 0);
+    wattrset(lwin, COLOR_PAIR(2));
+    mvwaddstr(lwin, line++, 2, "        HERO        ");
+    mvwaddstr(lwin, line++, 2, "name:               ");
+    mvwaddstr(lwin, line++, 2, "gold:       \u24bc  ");
+    mvwaddstr(lwin, line++, 2, "exp:                ");
+    wattroff(lwin, COLOR_PAIR(2));
+
+    line = 3;
+    wattrset(lwin, COLOR_PAIR(0));
+    mvwprintw(lwin, line++, 8, "%s", ggs->h->name);
+    mvwprintw(lwin, line++, 8, "%5d", ggs->h->gold);
+    mvwprintw(lwin, line++, 8, "%4d/%d", ggs->h->exp, exp_to_levelup(ggs->h->st->lvl));
+    wattroff(lwin, COLOR_PAIR(0));
+
+    wprintstats(lwin, ggs->h->st, ++line);
   }
 
   else
@@ -322,13 +336,12 @@ WINDOW* get_look_win(ggstate* ggs, vec look)
       default: is = "NOTHING"; break;
     }
 
-    box(lwin, 0, 0);
-
     wattrset(lwin, COLOR_PAIR(2));
     mvwaddstr(lwin, 2, 3, is);
     wattroff(lwin, COLOR_PAIR(2));
   }
 
+  box(lwin, 0, 0);
   return lwin;
 
 }
@@ -349,6 +362,9 @@ int dangeon_scene(ggstate* ggs)
 
   int mode = NORMAL_MODE;
   vec look;
+
+  int step = 0;
+
   do
   {
     
@@ -356,6 +372,7 @@ int dangeon_scene(ggstate* ggs)
     {
       ggs_dange_step(ggs);
       ggs_resolve_actions(ggs);
+      step++;
     }
 
     clearscreen();

@@ -1,6 +1,6 @@
 #include "place.h"
 
-const place NULL_PLACE = { -1, 0, T_NONE, NULL};
+const place NULL_PLACE = { -1, 0, T_NONE, 0.0, NULL};
 
 const char* place_type_str[PLACE_TYPE_NUM] = {
   "   NONE",
@@ -17,6 +17,11 @@ int get_higth(place* p) {
 }
 int get_type(place* p) {
   return p->type;
+}
+
+int dange_difficulty(place* p)
+{
+  return p->higth*3 + 2*abs(p->term + MIN_TERM/2);
 }
 
 vlist* get_views_from(level* l, denemy* ens, vec from, int rad) {

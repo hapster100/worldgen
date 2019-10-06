@@ -21,13 +21,18 @@ typedef struct place{
   char higth;
   char term;
   char type;
+
+  float time;
+
   level* lvl;
   denemy* enemys;
+  
 } place;
 
 int get_term(place* p);
 int get_higth(place* p);
 int get_type(place* p);
+int dange_difficulty(place* p);
 
 vlist* get_views_from(level* l, denemy* ens, vec from, int rad);
 

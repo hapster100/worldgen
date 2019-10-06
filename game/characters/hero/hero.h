@@ -15,6 +15,7 @@ typedef struct HERO
 
 hero* hero_init();
 void hero_free(hero* h);
+int exp_to_levelup(int lvl);
 
 hero* start_hero(char* name, int free_points, int STR, int CON, int DEX, int INT);
 

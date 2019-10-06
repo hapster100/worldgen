@@ -69,13 +69,32 @@ enemy* generate_enemy(int diff)
   
   en->st = stats_init();
 
+  int DEX = 1 + diff/5;
+  int INT = 1 + diff/5;
+  int STR = 1 + diff/5;
+  int CON = 1 + diff/5;
+
+  int base = rand()%ATTR_NUM;
 
   /// SET RANDOM ATTRIBUTES
+  for (int i = 0; i < diff/2; i++)
+  {
+    int r = rand()%(ATTR_NUM+1);
+    switch (r)
+    {
+    case STR_I: STR++; break;
+    case CON_I: CON++; break;
+    case INT_I: INT++; break;
+    case DEX_I: DEX++; break;
+    case ATTR_NUM: 
+      if (base == STR_I) STR++;
+      else if (base == CON_I) CON++;
+      else if (base == DEX_I) DEX++;
+      else if (base == INT_I) INT++;
+      break;
+    }
+  }
   attributes* attr = attr_init();
-  int STR = 1 + diff/4 + rand()%(diff/10 + 5);
-  int DEX = 1 + diff/4 + rand()%(diff/10 + 5);
-  int CON = 1 + diff/4 + rand()%(diff/10 + 5);
-  int INT = 1 + diff/4 + rand()%(diff/10 + 5);
   attr_set_all(attr, STR, DEX, CON, INT);
 
   en->reward += STR;
@@ -171,7 +190,7 @@ enemy* generate_enemy(int diff)
 
   en->st->equip = equip;
 
-  en->st->lvl = diff*(int)sqrt((double)diff/2.0)/10 + rand()%10 + 1;
+  en->st->lvl = diff/5 + 1;
   en->st->HP = max_hp(en->st);
   
   return en;

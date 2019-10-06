@@ -7,6 +7,7 @@ denemy* de_init()
   de->pos = NULL;
   de->next = NULL;
   de->way = create_vlist();
+  de->next_action_time = 0;
   return de;
 }
 

@@ -119,7 +119,7 @@ void ggs_set_enemys_way(ggstate* ggs)
       else if(!enemys->way->val)
       {
         vec randv = v(pos.x + rand()%3 - 1, pos.y + rand()%3 - 1);
-        vl_push(enemys->way, randv.x, randv.y);
+        vl_push_end(enemys->way, randv);
       }
       vl_free(views);
       enemys = enemys->next;
@@ -127,6 +127,17 @@ void ggs_set_enemys_way(ggstate* ggs)
 
  }
 
+int ggs_enemys_has_action(ggstate* ggs)
+{
+  denemy* en = ggs_enemys(ggs);
+  while(en)
+  {
+    if(en->next_action_time < ggs_dange_time(ggs))
+      return 1;
+    en = en->next;
+  }
+  return 0;
+}
 
 void ggs_enemys_actions(ggstate* ggs)
 {
@@ -134,13 +145,20 @@ void ggs_enemys_actions(ggstate* ggs)
 
   while(en)
   {
-    ggs_add_action(ggs, ENEMY_MOVE, en);
+    if(en->next_action_time < ggs_dange_time(ggs))
+    {
+      ggs_add_action(ggs, ENEMY_MOVE, en);
+      en->next_action_time += 1.0/st_speed(en->en->st);
+    }
     en = en->next;
   }
 }
 
 void ggs_dange_step(ggstate* ggs)
 {
-  ggs_set_enemys_way(ggs);
-  ggs_enemys_actions(ggs);
+  while(ggs_enemys_has_action(ggs))
+  {
+    ggs_set_enemys_way(ggs);
+    ggs_enemys_actions(ggs);
+  }
 }
