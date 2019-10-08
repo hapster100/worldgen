@@ -5,11 +5,17 @@
 #define IT_WEAPON 1
 #define IT_AMULET 2
 
+#define WT_SHORT 0
+#define WT_LONG 1
+#define WT_RANGE 2
+#define WT_NUM 3
+
 #include "../attributes/attributes.h"
 #include <stdarg.h>
 
 typedef struct WEAPON
 {
+  int type;
   int damage;
   attributes* attr_bonus;
 } weapon;

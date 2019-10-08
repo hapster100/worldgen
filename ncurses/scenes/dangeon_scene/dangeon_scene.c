@@ -55,7 +55,7 @@ int equipprinth(equipment* e)
   } 
   if(e->weap) 
   {
-    h+=3;
+    h+=4;
     if(attr_zero_count(e->weap->attr_bonus) != 4)
       h++;
   } 
@@ -128,11 +128,31 @@ void wprintequip(WINDOW* w, equipment* equip, int line)
       
       wattron(w, COLOR_PAIR(2));
       mvwaddstr(w, line++, 2, "      WEAPON        ");
-      mvwaddstr(w, line, 2, "Damage:             ");
+      mvwaddstr(w, line++, 2, "Damage:             ");
+      mvwaddstr(w, line--, 2, "Type:               ");
       wattroff(w, COLOR_PAIR(2));
+
+      char* weapon_type;
+
+      switch (weap->type)
+      {
+      case WT_SHORT:
+        weapon_type = "short";
+        break;
+      case WT_LONG:
+        weapon_type = " long";
+        break;
+      case WT_RANGE:
+        weapon_type = "range";
+        break;
+      default:
+        weapon_type = "";
+        break;
+      }
 
       wattron(w, COLOR_PAIR(0));
       mvwprintw(w, line++, 9, "%+4d", weap->damage);
+      mvwaddstr(w, line++, 8, weapon_type);
       wattroff(w, COLOR_PAIR(0));
       if (attr_zero_count(bs) != 4)
       {

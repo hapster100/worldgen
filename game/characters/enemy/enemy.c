@@ -184,7 +184,7 @@ enemy* generate_enemy(int diff)
       }
     }
     int damage = rand()%(diff/5) + 1;
-    equip->weap = item_obj_init(IT_WEAPON, attr_bonus, damage);
+    equip->weap = item_obj_init(IT_WEAPON, attr_bonus, damage, rand()%WT_NUM);
     en->reward += 50;
   }
 

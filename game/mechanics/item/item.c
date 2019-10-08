@@ -18,6 +18,7 @@ void* item_obj_init(int type, ...)
     obj = malloc(sizeof(weapon));
     ((weapon*)obj)->attr_bonus = va_arg(vl, attributes*);
     ((weapon*)obj)->damage = va_arg(vl, int);
+    ((weapon*)obj)->type = va_arg(vl, int);
     va_end(vl);
     break;
   
@@ -53,6 +54,7 @@ item* create_item(char* name, int cost, int type, ...)
     it->obj = malloc(sizeof(weapon));
     ((weapon*)it->obj)->attr_bonus = va_arg(vl, attributes*);
     ((weapon*)it->obj)->damage = va_arg(vl, int);
+    ((weapon*)it->obj)->type = va_arg(vl, int);
     break;
   
   case IT_AMULET:

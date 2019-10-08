@@ -21,6 +21,11 @@ void ncurses_mode() {
 
   int (*scenes[SCENE_NUM])(ggstate*);
 
+  if(COLS < 170 || LINES < 40)
+    mvprintw( 1, 1, "Please, resize terminal. (min size: 170x40)");
+  while(COLS < 170 || LINES < 40)
+    getch();
+
   scenes[MINE_MENU] = main_menu;
   scenes[CREATE_WORLD] = create_world;
   scenes[WORLD] = world_scene;
