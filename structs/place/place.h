@@ -33,6 +33,7 @@ int get_term(place* p);
 int get_higth(place* p);
 int get_type(place* p);
 int dange_difficulty(place* p);
+void pl_enemy_die(place* pl, vec* v);
 
 vlist* get_views_from(level* l, denemy* ens, vec from, int rad);
 

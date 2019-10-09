@@ -44,6 +44,16 @@ void set_dange_colors() {
 
 #define VIEW_RAD 10
 
+void print_extst(stats* st)
+{
+  int line = 1;
+
+  mvprintw(line++,1, "dmg: %d", st_damage(st));
+  mvprintw(line++,1, "prot: %d", st_protection(st));
+  mvprintw(line++,1, "crit: %d", st_crit_chance(st));
+  mvprintw(line++,1, "dodge: %d", st_dodge_chance(st));
+}
+
 int equipprinth(equipment* e)
 {
   int h = 0;
@@ -306,6 +316,7 @@ WINDOW* get_look_win(ggstate* ggs, vec look)
     wattroff(lwin, COLOR_PAIR(0));
 
     wprintstats(lwin, target->st, 6);
+    print_extst(target->st);
   }
 
   else if (v_equal(v(ggs->d_x, ggs->d_y), look))
@@ -330,6 +341,7 @@ WINDOW* get_look_win(ggstate* ggs, vec look)
     wattroff(lwin, COLOR_PAIR(0));
 
     wprintstats(lwin, ggs->h->st, ++line);
+    print_extst(ggs->h->st);
   }
 
   else
@@ -368,15 +380,9 @@ int dangeon_scene(ggstate* ggs)
 
   set_dange_colors();
 
-  level* dange = ggs_dange(ggs);
-  denemy* enemys = ggs_world_place(ggs)->enemys;
-  int h = dange->heigth;
-  int w = dange->width;
 
   int mode = NORMAL_MODE;
   vec look;
-
-  int step = 0;
 
   do
   {
@@ -384,9 +390,12 @@ int dangeon_scene(ggstate* ggs)
     if(mode == NORMAL_MODE)
     {
       ggs_dange_step(ggs);
-      ggs_resolve_actions(ggs);
-      step++;
     }
+
+    level* dange = ggs_dange(ggs);
+    denemy* enemys = ggs_enemys(ggs);
+    int h = dange->heigth;
+    int w = dange->width;
 
     clearscreen();
     
@@ -429,20 +438,72 @@ int dangeon_scene(ggstate* ggs)
       switch (getch())
       {
       case KEY_UP:
-        // if(!de_has(enemys, v(ggs->d_x+1, ggs->d_y)))
+        if(!de_has(enemys, v(ggs->d_x+1, ggs->d_y)))
           ggs_add_action(ggs, MOVE_DANGE, ggs->d_x+1, ggs->d_y);
+        else
+        {
+          denemy* de_p = enemys;
+          while(de_p)
+          {
+            if(v_equal(*de_p->pos, v(ggs->d_x+1, ggs->d_y)))
+            {
+              ggs_add_action(ggs, HERO_ATTACK, de_p);
+              break;
+            }
+            de_p = de_p->next;
+          }
+        }
         break;
       case KEY_DOWN:
-        // if(!de_has(enemys, v(ggs->d_x-1, ggs->d_y)))
+        if(!de_has(enemys, v(ggs->d_x-1, ggs->d_y)))
           ggs_add_action(ggs, MOVE_DANGE, ggs->d_x-1, ggs->d_y);
+        else
+        {
+          denemy* de_p = enemys;
+          while(de_p)
+          {
+            if(v_equal(*de_p->pos, v(ggs->d_x-1, ggs->d_y)))
+            {
+              ggs_add_action(ggs, HERO_ATTACK, de_p);
+              break;
+            }
+            de_p = de_p->next;
+          }
+        }
         break;
       case KEY_LEFT:
-        // if(!de_has(enemys, v(ggs->d_x, ggs->d_y-1)))
+       if(!de_has(enemys, v(ggs->d_x, ggs->d_y-1)))
           ggs_add_action(ggs, MOVE_DANGE, ggs->d_x, ggs->d_y-1);
+        else
+        {
+          denemy* de_p = enemys;
+          while(de_p)
+          {
+            if(v_equal(*de_p->pos, v(ggs->d_x, ggs->d_y-1)))
+            {
+              ggs_add_action(ggs, HERO_ATTACK, de_p);
+              break;
+            }
+            de_p = de_p->next;
+          }
+        }
         break;
       case KEY_RIGHT:
-        // if(!de_has(enemys, v(ggs->d_x, ggs->d_y+1)))
+        if(!de_has(enemys, v(ggs->d_x, ggs->d_y+1)))
           ggs_add_action(ggs, MOVE_DANGE, ggs->d_x, ggs->d_y+1);
+        else
+        {
+          denemy* de_p = enemys;
+          while(de_p)
+          {
+            if(v_equal(*de_p->pos, v(ggs->d_x, ggs->d_y+1)))
+            {
+              ggs_add_action(ggs, HERO_ATTACK, de_p);
+              break;
+            }
+            de_p = de_p->next;
+          }
+        }
         break;
       
       case '\n':
@@ -465,6 +526,7 @@ int dangeon_scene(ggstate* ggs)
       default:
         break;
       }
+      ggs_resolve_actions(ggs);
       break;
 
     case LOOK_MODE:

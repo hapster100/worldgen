@@ -70,6 +70,30 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
     act->args[1] = malloc(sizeof(denemy**));
     *(denemy**)(act->args[1]) = va_arg(vl, denemy*);
     break;
+  
+  case HERO_ATTACK:
+    act->act = hero_attack;
+    act->args = malloc(sizeof(void*)*2);
+    act->num_arg = 2;
+
+    act->args[0] = malloc(sizeof(ggstate**));
+    *(ggstate**)(act->args[0]) = ggs;
+
+    act->args[1] = malloc(sizeof(denemy**));
+    *(denemy**)(act->args[1]) = va_arg(vl, denemy*);
+    break;
+
+  case ENEMY_ATTACK:
+    act->act = enemy_attack;
+    act->args = malloc(sizeof(void*)*2);
+    act->num_arg = 2;
+
+    act->args[0] = malloc(sizeof(ggstate**));
+    *(ggstate**)(act->args[0]) = ggs;
+
+    act->args[1] = malloc(sizeof(denemy**));
+    *(denemy**)(act->args[1]) = va_arg(vl, denemy*);
+    break;
 
   default:
     act_free(act);
@@ -145,9 +169,16 @@ void ggs_enemys_actions(ggstate* ggs)
 
   while(en)
   {
+    vec pos = *en->pos;
+    int dx = abs(pos.x - ggs->d_x);
+    int dy = abs(pos.y - ggs->d_y);
     if(en->next_action_time < ggs_dange_time(ggs))
     {
-      ggs_add_action(ggs, ENEMY_MOVE, en);
+      if(dx + dy == 1)
+        ggs_add_action(ggs, ENEMY_ATTACK, en);
+      else
+        ggs_add_action(ggs, ENEMY_MOVE, en);
+
       en->next_action_time += 1.0/st_speed(en->en->st);
     }
     en = en->next;
@@ -156,9 +187,14 @@ void ggs_enemys_actions(ggstate* ggs)
 
 void ggs_dange_step(ggstate* ggs)
 {
-  while(ggs_enemys_has_action(ggs))
+  if(ggs_enemys(ggs)->en)
   {
-    ggs_set_enemys_way(ggs);
-    ggs_enemys_actions(ggs);
+    while(ggs_enemys_has_action(ggs))
+    {
+      ggs_set_enemys_way(ggs);
+      ggs_enemys_actions(ggs);
+      ggs_resolve_actions(ggs);
+    }
   }
+
 }

@@ -79,14 +79,14 @@ enemy* generate_enemy(int diff)
   /// SET RANDOM ATTRIBUTES
   for (int i = 0; i < diff/2; i++)
   {
-    int r = rand()%(ATTR_NUM+1);
+    int r = rand()%(ATTR_NUM+2);
     switch (r)
     {
     case STR_I: STR++; break;
     case CON_I: CON++; break;
     case INT_I: INT++; break;
     case DEX_I: DEX++; break;
-    case ATTR_NUM: 
+    default: 
       if (base == STR_I) STR++;
       else if (base == CON_I) CON++;
       else if (base == DEX_I) DEX++;

@@ -46,7 +46,7 @@ int create_hero(ggstate* ggs)
 
   int free_points = 4;
 
-  int attrs[ATTR_NUM] = {5,5,5,5};
+  int attrs[ATTR_NUM] = {4,4,4,4};  
   char* attrs_name[ATTR_NUM];
   attrs_name[STR_I] = "STR";
   attrs_name[CON_I] = "CON";

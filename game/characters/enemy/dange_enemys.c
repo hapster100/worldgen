@@ -21,8 +21,11 @@ void de_free(denemy* de)
     enemy_free(tmp->en);
     free(tmp); 
   }
-  free(de->pos);
-  enemy_free(de->en);
+  if(de->pos)
+  {
+    free(de->pos);
+    enemy_free(de->en);
+  }
   free(de);
 }
 

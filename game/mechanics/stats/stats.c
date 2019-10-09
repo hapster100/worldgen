@@ -59,11 +59,41 @@ void stats_free(stats* st)
 int max_hp(stats* st)
 {
   attributes attr = full_attr(st);
-  return 100 + attr.CON * (10 + st->lvl);
+  return 50 + attr.CON * 5;
 }
 
 float st_speed(stats* st)
 {
   attributes attr = full_attr(st);
-  return 0.5 + 0.02 * attr.DEX * (1 + 0.01 * st->lvl);
+  return 1 + attr.DEX * 0.05 + attr.INT * 0.05;
+}
+
+int st_damage(stats* st) 
+{
+  attributes attr = full_attr(st);
+  int weap_bonus = 0;
+  if(st->equip->weap)
+    weap_bonus += st->equip->weap->damage;
+  return weap_bonus + attr.STR * 2;
+}
+
+int st_crit_chance(stats* st) 
+{
+  attributes attr = full_attr(st);
+  return 2*attr.INT / 3;
+}
+
+int st_protection(stats* st) 
+{
+  attributes attr = full_attr(st);
+  int armor_bonus = 0;
+  if(st->equip->arm)
+    armor_bonus += st->equip->arm->protection;
+  return armor_bonus + attr.CON/2;
+}
+
+int st_dodge_chance(stats* st) 
+{
+  attributes attr = full_attr(st);
+  return 10 + attr.DEX/3;
 }

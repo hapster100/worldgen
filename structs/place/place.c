@@ -68,3 +68,8 @@ vlist* get_views_from(level* l, denemy* ens, vec from, int rad) {
   
   return views;
 }
+
+void pl_enemy_die(place* pl, vec* v)
+{
+  de_del(&pl->enemys, v);
+}

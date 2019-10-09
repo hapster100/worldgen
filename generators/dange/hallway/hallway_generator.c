@@ -182,16 +182,17 @@ void generate_hallways(level* l) {
   if (CLOSE_HALLWAY)
     for (int i = 0; i < l->heigth; i++)
       for (int j = 0; j < l->width; j++)
-        if(get_lvl_xy(l, i, j) == HALLWAY)
-          for (int ii = i - 1; ii <= i+1; ii++)
-            for (int jj = j - 1; jj <= j+1; jj++)
-            {
-              int type = get_lvl_xy(l, ii, jj);
-              if(type == BRIDGE)
-                set_lvl_xy(l, ii, jj, HALLWAY);
-              else if(type != DOOR && type != HALLWAY)
-                set_lvl_xy(l, ii, jj, WALL);
-            }
+        if(vec_in_area(v(i, j), v(1,1), v(l->heigth-2, l->width-2)))
+          if(get_lvl_xy(l, i, j) == HALLWAY)
+            for (int ii = i - 1; ii <= i+1; ii++)
+              for (int jj = j - 1; jj <= j+1; jj++)
+              {
+                int type = get_lvl_xy(l, ii, jj);
+                if(type == BRIDGE)
+                  set_lvl_xy(l, ii, jj, HALLWAY);
+                else if(type != DOOR && type != HALLWAY)
+                  set_lvl_xy(l, ii, jj, WALL);
+              }
   
 
   vl_free(beg);
