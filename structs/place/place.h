@@ -10,7 +10,8 @@
 #define T_WATER 1
 #define T_LAND 2
 #define T_DANGEON 3
-#define PLACE_TYPE_NUM 4
+#define T_CITY 4
+#define PLACE_TYPE_NUM 5
 
 const char* place_type_str[PLACE_TYPE_NUM];
 

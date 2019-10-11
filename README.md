@@ -1,4 +1,4 @@
-# world Generator
+# World Generator
 
 Procedurally generated world with dungeons
 

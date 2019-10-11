@@ -98,6 +98,12 @@ WINDOW* get_world_win(ggstate* ggs, int scale, int (*get)(place*), int mode)
         to_print_l = "\u2617";  
         to_print_r = " ";
       }
+
+      if (mode == DANG_MODE && higth == T_CITY) {
+        to_print_l = "\u2617";  
+        to_print_r = " ";
+      }
+
       if (ggs->w_y >= y0+y*scale &&
          ggs->w_y < y0 + y*scale + scale &&
          ggs->w_x >= x0+x*scale &&
