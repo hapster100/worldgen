@@ -1,3 +1,6 @@
+#include "../game/state/ggstate.h"
+#include <stdbool.h>
+
 const char* undefined = "undefined";
 
 int my_strlen(const char* str)

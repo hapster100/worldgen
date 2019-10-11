@@ -6,8 +6,8 @@
 #include "../../generators/world/world_generator.h"
 #include "../characters/hero/hero.h"
 
-#define LT_WORLD 0;
-#define LT_DANGE 1;
+#define LT_WORLD 0
+#define LT_DANGE 1
 
 typedef struct GLOBAL_GAME_STATE 
 {
