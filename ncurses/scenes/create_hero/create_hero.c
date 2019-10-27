@@ -44,9 +44,9 @@ int create_hero(ggstate* ggs)
   int change_param = 0;
   int curr_param = 0;
 
-  int free_points = 4;
+  int free_points = 0;
 
-  int attrs[ATTR_NUM] = {4,4,4,4};  
+  int attrs[ATTR_NUM] = {5,5,5,5};  
   char* attrs_name[ATTR_NUM];
   attrs_name[STR_I] = "STR";
   attrs_name[CON_I] = "CON";
@@ -117,9 +117,9 @@ int create_hero(ggstate* ggs)
       {
         curr_param++;
       } 
-      else if (curr_param < 4) 
+      else if (curr_param < 4 && curr_param > 0) 
       {
-          curr_param++;
+        curr_param++;
       }
       break;
     case KEY_UP:

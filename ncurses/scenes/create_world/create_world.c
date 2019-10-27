@@ -12,8 +12,8 @@ int create_world(ggstate* ggs) {
     name[i] = '\0';
   }
 
-  char* sizesstr[SIZES_NUM] = {"65x65","129x129","257x257"};
-  int sizes[SIZES_NUM] = {65,129,257};
+  char* sizesstr[SIZES_NUM] = {"33x33","65x65","129x129","257x257"};
+  int sizes[SIZES_NUM] = {33, 65,129,257};
   int curr_size = 0;
 
   int set_enter_x;

@@ -8,6 +8,7 @@
 
 #define LT_WORLD 0
 #define LT_DANGE 1
+#define LT_CITY 2
 
 typedef struct GLOBAL_GAME_STATE 
 {

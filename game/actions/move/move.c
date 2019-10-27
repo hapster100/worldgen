@@ -100,6 +100,13 @@ char* to_world(void** args)
   return "TO WORLD";
 }
 
+char* to_city(void** args)
+{
+  ggstate* ggs = *(ggstate**)args[0];
+  ggs->location = LT_CITY;
+  return "TO CITY";
+}
+
 char* enemy_move(void** args)
 {
   ggstate* ggs = *(ggstate**)args[0];

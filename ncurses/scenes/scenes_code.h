@@ -7,6 +7,7 @@
 #define WORLD 2
 #define DANGEON 3
 #define CREATE_HERO 4
-#define SCENE_NUM 5
+#define CITY 5
+#define SCENE_NUM 6
 
 #endif

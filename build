@@ -1,4 +1,4 @@
 #!/bin/bash
 
-gcc $(echo $(find -name "*.c") "-o wg -lm -lncursesw ")
+gcc -g $(echo $(find -name "*.c") "-o wg -lm -lncursesw ")
 

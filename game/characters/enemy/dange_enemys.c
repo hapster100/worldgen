@@ -95,3 +95,20 @@ int de_has(denemy* de, vec v)
     return 0;
   return de_has(de->next, v);
 }
+
+denemy* de_find_vec(denemy* de, vec v)
+{
+  if(!de->pos)
+    return NULL;
+  if(v_equal(v, *de->pos)) 
+    return de;
+  if(!de->next)
+    return NULL;
+  return de_find_vec(de->next, v);
+}
+
+int de_size(denemy* de)
+{
+  if(!de || !de->pos) return 0;
+  else return 1 + de_size(de->next);
+}

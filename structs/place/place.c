@@ -22,7 +22,7 @@ int get_type(place* p) {
 
 int dange_difficulty(place* p)
 {
-  return p->higth*3 + 2*abs(p->term + MIN_TERM/2);
+  return 1 + p->higth*2 + 2*abs(p->term + MIN_TERM/2);
 }
 
 vlist* get_views_from(level* l, denemy* ens, vec from, int rad) {
@@ -73,4 +73,44 @@ vlist* get_views_from(level* l, denemy* ens, vec from, int rad) {
 void pl_enemy_die(place* pl, vec* v)
 {
   de_del(&pl->enemys, v);
+}
+
+vlist* get_posible_attack(level* l, denemy* ens, vec from, int type)
+{
+  vlist* posa = create_vlist();
+  vlist* views = get_views_from(l, ens, from, 5);
+  switch (type)
+  { 
+  case WT_LONG:
+    for (int dx = -1; dx <= 1; dx++)
+      for (int dy = -1; dy <= 1; dy++)
+        if(vl_has(views, v(from.x + dx, from.y + dy)))
+          vl_push(posa, from.x + dx, from.y + dy);
+    break;
+  case WT_RANGE:
+    for(int dx = -2; dx <= 2; dx++)
+    {
+      int dy_start = (dx+2)%4 == 0 ? -1 : -2;
+      for (int dy = dy_start; dy <= -dy_start; dy++)
+      {
+        if(vl_has(views, v(from.x + dx, from.y + dy)))
+          vl_push(posa, from.x + dx, from.y + dy); 
+      }
+    }
+    break;
+  case WT_SHORT:
+  default:
+    if(vl_has(views, v(from.x - 1, from.y)))
+      vl_push(posa, from.x-1, from.y);
+    if(vl_has(views, v(from.x + 1, from.y)))
+      vl_push(posa, from.x+1, from.y);
+    if(vl_has(views, v(from.x, from.y-1)))
+      vl_push(posa, from.x, from.y-1);
+    if(vl_has(views, v(from.x, from.y + 1)))
+      vl_push(posa, from.x, from.y + 1);
+    break;
+  }
+  vl_free(views);
+
+  return posa;
 }

@@ -37,5 +37,6 @@ int dange_difficulty(place* p);
 void pl_enemy_die(place* pl, vec* v);
 
 vlist* get_views_from(level* l, denemy* ens, vec from, int rad);
+vlist* get_posible_attack(level* l, denemy* ens, vec from, int weap_type);
 
 #endif

@@ -50,6 +50,15 @@ void ggs_add_action(ggstate* ggs, int CODE, ...)
     *(ggstate**)(act->args[0]) = ggs;
     break;
 
+  case TO_CITY:
+    act->act = to_city;
+    act->args = malloc(sizeof(void*));
+    act->num_arg = 1;
+
+    act->args[0] = malloc(sizeof(ggstate**));
+    *(ggstate**)(act->args[0]) = ggs;
+    break;
+
   case TO_WORLD:
     act->act = to_world;
     act->args = malloc(sizeof(void*));
@@ -170,16 +179,19 @@ void ggs_enemys_actions(ggstate* ggs)
   while(en)
   {
     vec pos = *en->pos;
-    int dx = abs(pos.x - ggs->d_x);
-    int dy = abs(pos.y - ggs->d_y);
     if(en->next_action_time < ggs_dange_time(ggs))
     {
-      if(dx + dy == 1)
+      int weap_type = WT_SHORT;
+      if(en_weapon(en->en))
+        weap_type = en_weapon(en->en)->type;
+      vlist* pos_attacks = get_posible_attack(ggs_dange(ggs), ggs_enemys(ggs), pos, weap_type);
+      if(vl_has(pos_attacks, v(ggs->d_x, ggs->d_y)))
         ggs_add_action(ggs, ENEMY_ATTACK, en);
       else
         ggs_add_action(ggs, ENEMY_MOVE, en);
 
       en->next_action_time += 1.0/st_speed(en->en->st);
+      vl_free(pos_attacks);
     }
     en = en->next;
   }

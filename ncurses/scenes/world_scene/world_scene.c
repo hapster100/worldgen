@@ -82,9 +82,11 @@ WINDOW* get_world_win(ggstate* ggs, int scale, int (*get)(place*), int mode)
     for (int x = 0; x < x_size/2; x++) {
 
       int higth = 0;
+      int diffsum = 0;
       for(int i = 0; i < scale; i++) {
         for(int j = 0; j < scale; j++) {
             int curH =  get(get_place(ggs->w, x0 + x*scale + j, y0 + y*scale + i));
+            diffsum += dange_difficulty(get_place(ggs->w, x0 + x*scale + j, y0 + y*scale + i));
             if(abs(curH) > abs(higth)) {
               higth = curH;
             }
@@ -95,8 +97,24 @@ WINDOW* get_world_win(ggstate* ggs, int scale, int (*get)(place*), int mode)
       char* to_print_r = " ";
 
       if (mode == DANG_MODE && higth == T_DANGEON) {
-        to_print_l = "\u2617";  
-        to_print_r = " ";
+        int diff = diffsum / (scale*scale);
+        if(diff < 10)
+        {
+          to_print_l = "\u1208";
+        }
+        else if(diff < 25)
+        {
+          to_print_l = "\u2206";
+        }
+        else if(diff < 50)
+        {
+          to_print_l = "\u2616";
+        } 
+        else
+        {
+          to_print_l = "\u2617";
+        }
+        
       }
 
       if (mode == DANG_MODE && higth == T_CITY) {
@@ -168,7 +186,12 @@ int world_scene(ggstate* ggs) {
     attrset(COLOR_PAIR(1) | A_BOLD);
     mvprintw(LINES/2 -17, COLS/2 + 27, " 1:%2d ", scale);
     mvaddstr(LINES/2+17, COLS/2-21, "  q:exit   +/-:scale   \u2190\u2191\u2193\u2192 :move  m:menu  ");
-    if(ggs_world_place(ggs)->type == T_DANGEON) mvaddstr(LINES/2+18, COLS/2 - 8, "ENTER: to dangeon");
+    
+    if(ggs_world_place(ggs)->type == T_DANGEON) 
+      mvaddstr(LINES/2+18, COLS/2 - 8, "ENTER: to dangeon");
+    if(ggs_world_place(ggs)->type == T_CITY)
+      mvaddstr(LINES/2+18, COLS/2 - 8, "ENTER: to city");
+    
     attroff(COLOR_PAIR(1) | A_BOLD);
 
     world_win = get_world_win(ggs, scale, getters[curr_mode], worldmode);
@@ -228,9 +251,10 @@ int world_scene(ggstate* ggs) {
           ggs_add_action(ggs, TO_DANGE);
           ggs_resolve_actions(ggs);
           return DANGEON;
-          break;
-        default:
-          break;
+        case T_CITY:
+          ggs_add_action(ggs, TO_CITY);
+          ggs_resolve_actions(ggs);
+          return CITY;
         }
         break;
       case 'q':

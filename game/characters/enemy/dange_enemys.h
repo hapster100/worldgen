@@ -19,5 +19,7 @@ void de_free(denemy* de);
 void de_push(denemy** de, vec* v, enemy* en);
 void de_del(denemy** de, vec* v);
 int de_has(denemy* de, vec v);
+int de_size(denemy* de);
+denemy* de_find_vec(denemy* de, vec v);
 
 #endif

@@ -12,12 +12,11 @@ void ncurses_init() {
   init_pair(0, COLOR_WHITE, COLOR_BLACK);
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+  init_pair(3, COLOR_RED, COLOR_BLACK);
 }
 
-void ncurses_mode() {
+void ncurses_mode(ggstate* ggs) {
   ncurses_init();
-
-  ggstate* ggs = ggs_init();
 
   int (*scenes[SCENE_NUM])(ggstate*);
 
@@ -31,6 +30,7 @@ void ncurses_mode() {
   scenes[WORLD] = world_scene;
   scenes[DANGEON] = dangeon_scene;
   scenes[CREATE_HERO] = create_hero;
+  scenes[CITY] = city_scene;
 
   int current_scene = main_menu(ggs);
   while(current_scene!=EXIT) 
@@ -39,6 +39,4 @@ void ncurses_mode() {
   }
 
   endwin();
-
-  ggs_free(ggs);
 }

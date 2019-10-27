@@ -11,7 +11,7 @@
 #include "../../../generators/generators.h"
 #include "../../../game/game.h"
 
-#define SIZES_NUM 3
+#define SIZES_NUM 4
 
 int create_world(ggstate* ggs);
 

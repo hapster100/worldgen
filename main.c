@@ -3,6 +3,7 @@
 
 
 int main(int argv, char** argc) {
-  ncurses_mode();
-
+  ggstate* ggs = ggs_init();
+  ncurses_mode(ggs);
+  ggs_free(ggs);
 }

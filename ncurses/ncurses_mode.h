@@ -8,7 +8,8 @@
 #include "./scenes/world_scene/world_scene.h"
 #include "./scenes/dangeon_scene/dangeon_scene.h"
 #include "./scenes/create_hero/create_hero.h"
+#include "./scenes/city_scene/city_scene.h"
 
-void ncurses_mode();
+void ncurses_mode(ggstate* ggs);
 
 #endif

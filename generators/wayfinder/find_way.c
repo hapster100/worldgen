@@ -107,7 +107,7 @@ vlist* find_way(level* l, vec start, vec end)
   }
   
   vlist* opens = create_vlist();
-  vlist* cands = create_vlist(); 
+  vlist* cands = create_vlist();
   
   vl_push(opens, start.x, start.y);
   costs[i_from_xy(start.x, start.y, lw)] = 0;
